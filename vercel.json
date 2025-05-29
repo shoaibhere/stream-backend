@@ -1,0 +1,80 @@
+{
+  "version": 2,
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "regions": ["iad1"],
+  "functions": {
+    "app/api/**/*.ts": {
+      "maxDuration": 30
+    }
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "X-Requested-With, Content-Type, Authorization"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/live-matches",
+      "destination": "/api/live-matches"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/admin",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/login",
+      "destination": "/",
+      "permanent": true
+    }
+  ],
+  "env": {
+    "MONGODB_URI": "mongodb+srv://shoaibakhtar645:AaXVG90GAbNJfjj0@streambackend.pdrvwed.mongodb.net/",
+    "ADMIN_PASSWORD": "12345678",
+    "CLOUDINARY_CLOUD_NAME": "dvk4d45lg",
+    "CLOUDINARY_API_KEY": "763747811126361",
+    "CLOUDINARY_API_SECRET": "5Px0UvTRSlwG3JTYxS0OmJwvMsU"
+  },
+  "crons": [
+    {
+      "path": "/api/health-check",
+      "schedule": "0 */6 * * *"
+    }
+  ]
+}
