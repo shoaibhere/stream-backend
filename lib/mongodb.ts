@@ -1,66 +1,61 @@
-import { MongoClient, MongoClientOptions } from "mongodb";
+import { MongoClient, MongoClientOptions, ServerApiVersion } from "mongodb";
 
+// Check for MongoDB URI
 if (!process.env.MONGODB_URI) {
-  throw new Error('Invalid/Missing environment variable: "MONGODB_URI"');
+  throw new Error('Missing environment variable: "MONGODB_URI"');
 }
 
 const uri = process.env.MONGODB_URI;
+
 const options: MongoClientOptions = {
-  // Connection timeouts
-  serverSelectionTimeoutMS: 10000, // 10 seconds
+  // Timeouts
+  serverSelectionTimeoutMS: 10000,
   connectTimeoutMS: 10000,
   socketTimeoutMS: 30000,
-  
-  // SSL/TLS Configuration
+
+  // SSL/TLS
   tls: true,
   tlsAllowInvalidCertificates: false,
   tlsAllowInvalidHostnames: false,
-  
-  // Connection pooling
+
+  // Pooling
   maxPoolSize: 15,
   minPoolSize: 3,
   maxIdleTimeMS: 30000,
   waitQueueTimeoutMS: 10000,
-  
-  // Retry logic (using supported options)
+
+  // Retry logic
   retryWrites: true,
   retryReads: true,
-  
+
   // Monitoring
   heartbeatFrequencyMS: 10000,
-  monitorCommands: process.env.NODE_ENV === 'development'
+  monitorCommands: process.env.NODE_ENV === 'development',
+
+  // API versioning (optional but recommended)
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  },
 };
 
 let client: MongoClient;
 let clientPromise: Promise<MongoClient>;
 
-async function createMongoClient() {
-  const client = new MongoClient(uri, options);
-  
-  try {
-    console.log('Attempting MongoDB connection...');
-    await client.connect();
-    console.log('MongoDB connected successfully');
-    return client;
-  } catch (error) {
-    console.error('MongoDB connection failed:', error);
-    throw error;
-  }
-}
-
-if (process.env.NODE_ENV === "development") {
-  // Development: use global variable to preserve connection
+if (process.env.NODE_ENV === 'development') {
   const globalWithMongo = global as typeof globalThis & {
     _mongoClientPromise?: Promise<MongoClient>;
   };
 
   if (!globalWithMongo._mongoClientPromise) {
-    globalWithMongo._mongoClientPromise = createMongoClient();
+    client = new MongoClient(uri, options);
+    globalWithMongo._mongoClientPromise = client.connect();
   }
   clientPromise = globalWithMongo._mongoClientPromise;
 } else {
-  // Production: new connection
-  clientPromise = createMongoClient();
+  client = new MongoClient(uri, options);
+  clientPromise = client.connect();
 }
 
 export default clientPromise;
