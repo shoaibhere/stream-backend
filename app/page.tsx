@@ -11,7 +11,7 @@ export default function Home() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-4 bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+    <main className="min-h-screen admin-gradient flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <LoginForm />
       </div>

@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Switch } from "@/components/ui/switch"
 import { useToast } from "@/components/ui/use-toast"
+import { Loader2 } from "lucide-react"
 
 interface Match {
   _id: string
@@ -57,7 +58,21 @@ export default function ToggleLiveStatus({ match }: ToggleLiveStatusProps) {
     }
   }
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center">
+        <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+      </div>
+    )
+  }
+
   return (
-    <Switch checked={isLive} onCheckedChange={toggleLiveStatus} disabled={isLoading} aria-label="Toggle live status" />
+    <Switch
+      checked={isLive}
+      onCheckedChange={toggleLiveStatus}
+      disabled={isLoading}
+      aria-label="Toggle live status"
+      className="data-[state=checked]:bg-red-500 data-[state=unchecked]:bg-slate-200"
+    />
   )
 }

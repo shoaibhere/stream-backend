@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/ui/use-toast"
 import Image from "next/image"
-import { Loader2, Upload } from "lucide-react"
+import { Loader2, Upload, X } from "lucide-react"
 
 interface TeamDialogProps {
   children: React.ReactNode
@@ -74,6 +74,11 @@ export default function TeamDialog({ children, teamId }: TeamDialogProps) {
       }
       reader.readAsDataURL(file)
     }
+  }
+
+  const removeCrest = () => {
+    setCrestFile(null)
+    setCrestPreview(null)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -132,64 +137,85 @@ export default function TeamDialog({ children, teamId }: TeamDialogProps) {
       }}
     >
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>{teamId ? "Edit Team" : "Add New Team"}</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="space-y-3">
+          <DialogTitle className="text-xl font-semibold text-slate-800">
+            {teamId ? "Edit Team" : "Add New Team"}
+          </DialogTitle>
+          <DialogDescription className="text-slate-600">
             {teamId ? "Update team details below" : "Enter team details below to create a new team"}
           </DialogDescription>
         </DialogHeader>
 
         {isLoadingTeam ? (
-          <div className="flex justify-center py-8">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <div className="flex justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
           </div>
         ) : (
-          <form onSubmit={handleSubmit}>
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="name">Team Name</Label>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name" className="text-sm font-medium text-slate-700">
+                  Team Name
+                </Label>
                 <Input
                   id="name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Enter team name"
+                  className="h-11 rounded-lg border-slate-200 focus:border-blue-500 focus:ring-blue-500"
                   required
                 />
               </div>
 
-              <div className="grid gap-2">
-                <Label htmlFor="crest">Club Crest</Label>
-                <div className="flex items-center gap-4">
-                  {crestPreview && (
-                    <div className="relative h-16 w-16 overflow-hidden rounded-md border">
+              <div className="space-y-3">
+                <Label className="text-sm font-medium text-slate-700">Club Crest</Label>
+
+                {crestPreview ? (
+                  <div className="space-y-3">
+                    <div className="relative w-24 h-24 mx-auto">
                       <Image
                         src={crestPreview || "/placeholder.svg"}
                         alt="Crest preview"
                         fill
-                        className="object-contain"
+                        className="object-contain rounded-lg border border-slate-200"
                       />
+                      <button
+                        type="button"
+                        onClick={removeCrest}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
                     </div>
-                  )}
-                  <div className="flex-1">
                     <Label
                       htmlFor="crest"
-                      className="flex h-10 w-full cursor-pointer items-center justify-center rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium hover:bg-accent hover:text-accent-foreground"
+                      className="flex h-11 w-full cursor-pointer items-center justify-center rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 transition-colors"
                     >
-                      <Upload className="mr-2 h-4 w-4" />
-                      {crestPreview ? "Change Image" : "Upload Image"}
+                      <Upload className="mr-2 h-4 w-4 text-slate-600" />
+                      <span className="text-sm text-slate-600">Change Image</span>
                       <Input id="crest" type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
                     </Label>
                   </div>
-                </div>
+                ) : (
+                  <Label
+                    htmlFor="crest"
+                    className="flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 hover:bg-slate-100 transition-colors"
+                  >
+                    <Upload className="h-8 w-8 text-slate-400 mb-2" />
+                    <span className="text-sm font-medium text-slate-600">Upload Club Crest</span>
+                    <span className="text-xs text-slate-500">PNG, JPG up to 10MB</span>
+                    <Input id="crest" type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+                  </Label>
+                )}
               </div>
             </div>
 
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            <DialogFooter className="gap-3 sm:gap-2">
+              <Button type="button" variant="outline" onClick={() => setOpen(false)} className="admin-button-secondary">
                 Cancel
               </Button>
-              <Button type="submit" disabled={isLoading}>
+              <Button type="submit" disabled={isLoading} className="admin-button-primary">
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {teamId ? "Update Team" : "Create Team"}
               </Button>

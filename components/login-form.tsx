@@ -9,11 +9,12 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/ui/use-toast"
-import { Shield } from "lucide-react"
+import { Shield, Eye, EyeOff } from "lucide-react"
 
 export default function LoginForm() {
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
 
@@ -56,36 +57,65 @@ export default function LoginForm() {
   }
 
   return (
-    <Card className="w-full">
-      <CardHeader className="space-y-1">
-        <div className="flex justify-center mb-4">
-          <div className="bg-primary/10 p-3 rounded-full">
-            <Shield className="h-8 w-8 text-primary" />
+    <div className="w-full max-w-md mx-auto">
+      <Card className="admin-card border-0 shadow-2xl">
+        <CardHeader className="space-y-4 pb-8">
+          <div className="flex justify-center">
+            <div className="admin-gradient p-4 rounded-2xl shadow-lg">
+              <Shield className="h-8 w-8 text-white" />
+            </div>
           </div>
-        </div>
-        <CardTitle className="text-2xl text-center">Admin Login</CardTitle>
-        <CardDescription className="text-center">Enter your password to access the admin dashboard</CardDescription>
-      </CardHeader>
-      <form onSubmit={handleSubmit}>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              required
-            />
+          <div className="text-center space-y-2">
+            <CardTitle className="text-2xl font-bold text-slate-800">Admin Portal</CardTitle>
+            <CardDescription className="text-slate-600">
+              Enter your credentials to access the football streaming dashboard
+            </CardDescription>
           </div>
-        </CardContent>
-        <CardFooter>
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Logging in..." : "Login"}
-          </Button>
-        </CardFooter>
-      </form>
-    </Card>
+        </CardHeader>
+        <form onSubmit={handleSubmit}>
+          <CardContent className="space-y-6 px-8">
+            <div className="space-y-3">
+              <Label htmlFor="password" className="text-sm font-medium text-slate-700">
+                Password
+              </Label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  className="pr-12 h-12 rounded-lg border-slate-200 focus:border-blue-500 focus:ring-blue-500"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </div>
+            </div>
+          </CardContent>
+          <CardFooter className="px-8 pb-8">
+            <Button
+              type="submit"
+              className="w-full h-12 admin-button-primary text-base font-medium"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Signing in...
+                </div>
+              ) : (
+                "Sign In"
+              )}
+            </Button>
+          </CardFooter>
+        </form>
+      </Card>
+    </div>
   )
 }

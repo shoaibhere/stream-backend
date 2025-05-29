@@ -10,6 +10,7 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "Football Streaming Admin",
   description: "Admin dashboard for football streaming app",
+    generator: 'v0.dev'
 }
 
 export default function RootLayout({

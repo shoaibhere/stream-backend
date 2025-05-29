@@ -85,7 +85,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   <SidebarMenuButton
                     asChild
                     isActive={pathname === item.href}
-                    className="w-full justify-start gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 hover:bg-blue-50 data-[active=true]:bg-blue-100 data-[active=true]:text-blue-700 data-[active=true]:border-blue-200"
+                    className="w-full justify-start gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 hover:bg-blue-50 data-[active=true]:bg-blue-100 text-blue-700 data-[active=true]:border-blue-200"
                   >
                     <Link href={item.href}>
                       <item.icon className="h-5 w-5" />
@@ -116,15 +116,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <header className="sticky top-0 z-10 bg-white border-b border-slate-200 shadow-sm">
             <div className="flex h-16 items-center justify-between px-6">
               <SidebarTrigger className="lg:hidden" />
-              <div className="hidden lg:block" />
-              <Button variant="outline" size="sm" onClick={handleLogout} className="admin-button-secondary text-sm">
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
-              </Button>
             </div>
           </header>
 
-          <main className="flex-1 p-6 lg:p-8">
+          <main className="">
             <div className="max-w-7xl mx-auto">{children}</div>
           </main>
         </SidebarInset>

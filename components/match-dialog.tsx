@@ -17,7 +17,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/ui/use-toast"
-import { Loader2 } from "lucide-react"
+import { Loader2, Radio } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 
@@ -148,86 +148,117 @@ export default function MatchDialog({ children, matchId, teams }: MatchDialogPro
       }}
     >
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>{matchId ? "Edit Match" : "Add New Match"}</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="space-y-3">
+          <DialogTitle className="text-xl font-semibold text-slate-800">
+            {matchId ? "Edit Match" : "Add New Match"}
+          </DialogTitle>
+          <DialogDescription className="text-slate-600">
             {matchId ? "Update match details below" : "Enter match details below to create a new match"}
           </DialogDescription>
         </DialogHeader>
 
         {isLoadingMatch ? (
-          <div className="flex justify-center py-8">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <div className="flex justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
           </div>
         ) : (
-          <form onSubmit={handleSubmit}>
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="title">Match Title</Label>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="title" className="text-sm font-medium text-slate-700">
+                  Match Title
+                </Label>
                 <Input
                   id="title"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Enter match title"
+                  placeholder="e.g., Premier League Final"
+                  className="h-11 rounded-lg border-slate-200 focus:border-blue-500 focus:ring-blue-500"
                   required
                 />
               </div>
 
-              <div className="grid gap-2">
-                <Label htmlFor="team1">Team 1</Label>
-                <Select value={team1Id} onValueChange={setTeam1Id} required>
-                  <SelectTrigger id="team1">
-                    <SelectValue placeholder="Select team 1" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {teams.map((team) => (
-                      <SelectItem key={team._id} value={team._id}>
-                        {team.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="team1" className="text-sm font-medium text-slate-700">
+                    Team 1
+                  </Label>
+                  <Select value={team1Id} onValueChange={setTeam1Id} required>
+                    <SelectTrigger
+                      id="team1"
+                      className="h-11 rounded-lg border-slate-200 focus:border-blue-500 focus:ring-blue-500"
+                    >
+                      <SelectValue placeholder="Select first team" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {teams.map((team) => (
+                        <SelectItem key={team._id} value={team._id}>
+                          {team.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="team2" className="text-sm font-medium text-slate-700">
+                    Team 2
+                  </Label>
+                  <Select value={team2Id} onValueChange={setTeam2Id} required>
+                    <SelectTrigger
+                      id="team2"
+                      className="h-11 rounded-lg border-slate-200 focus:border-blue-500 focus:ring-blue-500"
+                    >
+                      <SelectValue placeholder="Select second team" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {teams.map((team) => (
+                        <SelectItem key={team._id} value={team._id}>
+                          {team.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
-              <div className="grid gap-2">
-                <Label htmlFor="team2">Team 2</Label>
-                <Select value={team2Id} onValueChange={setTeam2Id} required>
-                  <SelectTrigger id="team2">
-                    <SelectValue placeholder="Select team 2" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {teams.map((team) => (
-                      <SelectItem key={team._id} value={team._id}>
-                        {team.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="grid gap-2">
-                <Label htmlFor="streamUrl">Stream URL (m3u8)</Label>
+              <div className="space-y-2">
+                <Label htmlFor="streamUrl" className="text-sm font-medium text-slate-700">
+                  Stream URL (m3u8)
+                </Label>
                 <Input
                   id="streamUrl"
                   value={streamUrl}
                   onChange={(e) => setStreamUrl(e.target.value)}
-                  placeholder="Enter m3u8 stream URL"
+                  placeholder="https://example.com/stream.m3u8"
+                  className="h-11 rounded-lg border-slate-200 focus:border-blue-500 focus:ring-blue-500 font-mono text-sm"
                   required
                 />
               </div>
 
-              <div className="flex items-center gap-2">
-                <Switch id="isLive" checked={isLive} onCheckedChange={setIsLive} />
-                <Label htmlFor="isLive">Live Status</Label>
+              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-200">
+                <div className="space-y-1">
+                  <Label htmlFor="isLive" className="text-sm font-medium text-slate-700 flex items-center gap-2">
+                    <Radio className="h-4 w-4" />
+                    Live Status
+                  </Label>
+                  <p className="text-xs text-slate-500">Enable to make this match available for streaming</p>
+                </div>
+                <Switch
+                  id="isLive"
+                  checked={isLive}
+                  onCheckedChange={setIsLive}
+                  className="data-[state=checked]:bg-red-500"
+                />
               </div>
             </div>
 
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            <DialogFooter className="gap-3 sm:gap-2">
+              <Button type="button" variant="outline" onClick={() => setOpen(false)} className="admin-button-secondary">
                 Cancel
               </Button>
-              <Button type="submit" disabled={isLoading}>
+              <Button type="submit" disabled={isLoading} className="admin-button-primary">
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {matchId ? "Update Match" : "Create Match"}
               </Button>
