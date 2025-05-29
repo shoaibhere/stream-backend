@@ -171,6 +171,7 @@ export default function MatchDialog({ children, matchId, teams }: MatchDialogPro
                 </Label>
                 <Input
                   id="title"
+
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g., Premier League Final"
