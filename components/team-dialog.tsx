@@ -212,7 +212,7 @@ export default function TeamDialog({ children, teamId }: TeamDialogProps) {
             </div>
 
             <DialogFooter className="gap-3 sm:gap-2">
-              <Button type="button" variant="outline" onClick={() => setOpen(false)} className="admin-button-secondary">
+              <Button type="button" variant="outline" onClick={() => setOpen(false)} className="admin-button-primary">
                 Cancel
               </Button>
               <Button type="submit" disabled={isLoading} className="admin-button-primary">
