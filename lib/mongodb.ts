@@ -7,13 +7,12 @@ if (!process.env.MONGODB_URI) {
 const uri = process.env.MONGODB_URI;
 const options: MongoClientOptions = {
   // Connection timeouts
-  serverSelectionTimeoutMS: 10000, // Increased to 10s
+  serverSelectionTimeoutMS: 10000, // 10 seconds
   connectTimeoutMS: 10000,
   socketTimeoutMS: 30000,
   
-  // SSL/TLS Configuration (critical for Railway)
+  // SSL/TLS Configuration
   tls: true,
-  minTLSVersion: 'TLSv1.2', // Explicitly require TLS 1.2
   tlsAllowInvalidCertificates: false,
   tlsAllowInvalidHostnames: false,
   
@@ -23,21 +22,18 @@ const options: MongoClientOptions = {
   maxIdleTimeMS: 30000,
   waitQueueTimeoutMS: 10000,
   
-  // Retry logic
+  // Retry logic (using supported options)
   retryWrites: true,
   retryReads: true,
-  retryDelay: 1000,
-  maxRetryAttempts: 3,
   
   // Monitoring
   heartbeatFrequencyMS: 10000,
-  monitorCommands: true
+  monitorCommands: process.env.NODE_ENV === 'development'
 };
 
 let client: MongoClient;
 let clientPromise: Promise<MongoClient>;
 
-// Enhanced connection function with retry logic
 async function createMongoClient() {
   const client = new MongoClient(uri, options);
   
@@ -47,28 +43,8 @@ async function createMongoClient() {
     console.log('MongoDB connected successfully');
     return client;
   } catch (error) {
-    console.error('Initial connection failed, retrying...', error);
-    
-    // Implement manual retry
-    let attempts = 0;
-    const maxAttempts = 3;
-    let lastError = error;
-    
-    while (attempts < maxAttempts) {
-      try {
-        attempts++;
-        console.log(`Retry attempt ${attempts}/${maxAttempts}`);
-        await new Promise(resolve => setTimeout(resolve, 1000 * attempts));
-        await client.connect();
-        return client;
-      } catch (retryError) {
-        lastError = retryError;
-        console.error(`Retry attempt ${attempts} failed:`, retryError);
-      }
-    }
-    
-    console.error('All connection attempts failed');
-    throw lastError;
+    console.error('MongoDB connection failed:', error);
+    throw error;
   }
 }
 
@@ -83,9 +59,8 @@ if (process.env.NODE_ENV === "development") {
   }
   clientPromise = globalWithMongo._mongoClientPromise;
 } else {
-  // Production: new connection with enhanced error handling
+  // Production: new connection
   clientPromise = createMongoClient();
 }
 
-// Export the connection promise
 export default clientPromise;
