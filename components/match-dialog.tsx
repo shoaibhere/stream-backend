@@ -237,7 +237,7 @@ export default function MatchDialog({ children, matchId, teams }: MatchDialogPro
                 />
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-200">
+              <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200">
                 <div className="space-y-1">
                   <Label htmlFor="isLive" className="text-sm font-medium text-slate-700 flex items-center gap-2">
                     <Radio className="h-4 w-4" />
@@ -255,10 +255,10 @@ export default function MatchDialog({ children, matchId, teams }: MatchDialogPro
             </div>
 
             <DialogFooter className="gap-3 sm:gap-2">
-              <Button type="button" variant="outline" onClick={() => setOpen(false)} className="admin-button-secondary">
+              <Button type="button" variant="outline" onClick={() => setOpen(false)} className="admin-button-primary">
                 Cancel
               </Button>
-              <Button type="submit" disabled={isLoading} className="admin-button-primary">
+              <Button type="submit" disabled={isLoading} className="admin-button-secondary">
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {matchId ? "Update Match" : "Create Match"}
               </Button>

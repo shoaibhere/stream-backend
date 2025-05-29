@@ -66,8 +66,8 @@ export default function LoginForm() {
             </div>
           </div>
           <div className="text-center space-y-2">
-            <CardTitle className="text-2xl font-bold text-slate-800">Admin Portal</CardTitle>
-            <CardDescription className="text-slate-600">
+            <CardTitle className="text-2xl font-bold text-white">Admin Portal</CardTitle>
+            <CardDescription className="text-white">
               Enter your credentials to access the football streaming dashboard
             </CardDescription>
           </div>
@@ -91,7 +91,7 @@ export default function LoginForm() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
                 >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
