@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -17,9 +16,10 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/ui/use-toast"
-import { Loader2, Radio } from "lucide-react"
+import { Loader2, Radio, Search } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command"
 
 interface Team {
   _id: string
@@ -42,6 +42,8 @@ export default function MatchDialog({ children, matchId, teams }: MatchDialogPro
   const [isLive, setIsLive] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [isLoadingMatch, setIsLoadingMatch] = useState(false)
+  const [searchTerm1, setSearchTerm1] = useState("")
+  const [searchTerm2, setSearchTerm2] = useState("")
   const router = useRouter()
   const { toast } = useToast()
 
@@ -81,7 +83,7 @@ export default function MatchDialog({ children, matchId, teams }: MatchDialogPro
     if (team1Id === team2Id) {
       toast({
         title: "Error",
-        description: "Team 1 and Team 2 cannot be the same",
+        description: "Home Team and Away Team cannot be the same",
         variant: "destructive",
       })
       return
@@ -137,7 +139,17 @@ export default function MatchDialog({ children, matchId, teams }: MatchDialogPro
     setTeam2Id("")
     setStreamUrl("")
     setIsLive(false)
+    setSearchTerm1("")
+    setSearchTerm2("")
   }
+
+  const filteredTeams1 = teams.filter(team => 
+    team.name.toLowerCase().includes(searchTerm1.toLowerCase())
+  )
+
+  const filteredTeams2 = teams.filter(team => 
+    team.name.toLowerCase().includes(searchTerm2.toLowerCase())
+  )
 
   return (
     <Dialog
@@ -182,42 +194,82 @@ export default function MatchDialog({ children, matchId, teams }: MatchDialogPro
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="team1" className="text-sm font-medium text-slate-700">
-                    Team 1
+                    Home Team
                   </Label>
                   <Select value={team1Id} onValueChange={setTeam1Id} required>
                     <SelectTrigger
                       id="team1"
                       className="h-11 rounded-lg border-slate-200 focus:border-blue-500 focus:ring-blue-500"
                     >
-                      <SelectValue placeholder="Select first team" />
+                      <SelectValue placeholder="Select Home Team" />
                     </SelectTrigger>
-                    <SelectContent>
-                      {teams.map((team) => (
-                        <SelectItem key={team._id} value={team._id}>
-                          {team.name}
-                        </SelectItem>
-                      ))}
+                    <SelectContent className="p-0">
+                      <Command>
+                        <div className="flex items-center border-b px-3">
+                          <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+                          <CommandInput 
+                            placeholder="Search team..."
+                            value={searchTerm1}
+                            onValueChange={setSearchTerm1}
+                          />
+                        </div>
+                        <CommandEmpty>No team found.</CommandEmpty>
+                        <CommandGroup className="max-h-[200px] overflow-y-auto">
+                          {filteredTeams1.map((team) => (
+                            <CommandItem
+                              key={team._id}
+                              value={team._id}
+                              onSelect={() => {
+                                setTeam1Id(team._id)
+                                setSearchTerm1("")
+                              }}
+                            >
+                              {team.name}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </Command>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="team2" className="text-sm font-medium text-slate-700">
-                    Team 2
+                    Away Team
                   </Label>
                   <Select value={team2Id} onValueChange={setTeam2Id} required>
                     <SelectTrigger
                       id="team2"
                       className="h-11 rounded-lg border-slate-200 focus:border-blue-500 focus:ring-blue-500"
                     >
-                      <SelectValue placeholder="Select second team" />
+                      <SelectValue placeholder="Select Away Team" />
                     </SelectTrigger>
-                    <SelectContent>
-                      {teams.map((team) => (
-                        <SelectItem key={team._id} value={team._id}>
-                          {team.name}
-                        </SelectItem>
-                      ))}
+                    <SelectContent className="p-0">
+                      <Command>
+                        <div className="flex items-center border-b px-3">
+                          <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+                          <CommandInput 
+                            placeholder="Search team..."
+                            value={searchTerm2}
+                            onValueChange={setSearchTerm2}
+                          />
+                        </div>
+                        <CommandEmpty>No team found.</CommandEmpty>
+                        <CommandGroup className="max-h-[200px] overflow-y-auto">
+                          {filteredTeams2.map((team) => (
+                            <CommandItem
+                              key={team._id}
+                              value={team._id}
+                              onSelect={() => {
+                                setTeam2Id(team._id)
+                                setSearchTerm2("")
+                              }}
+                            >
+                              {team.name}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </Command>
                     </SelectContent>
                   </Select>
                 </div>
