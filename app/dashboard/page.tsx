@@ -1,10 +1,13 @@
 
+export const dynamic = "force-dynamic"
+
 import DashboardLayout from "@/components/dashboard-layout"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Users, Tv, Play, TrendingUp, Plus, Activity } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { getTeamsCount, getMatchesCount, getLiveMatches } from "@/lib/data"
+
 
 export default async function Dashboard() {
   const teamsCount = await getTeamsCount()
