@@ -22,9 +22,11 @@ interface DeleteTeamDialogProps {
   children: React.ReactNode
   teamId: string
   teamName: string
+  onSuccess?: () => void // ✅ add this line
+  
 }
 
-export default function DeleteTeamDialog({ children, teamId, teamName }: DeleteTeamDialogProps) {
+export default function DeleteTeamDialog({ children, teamId, teamName, onSuccess }: DeleteTeamDialogProps) {
   const [open, setOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
@@ -44,6 +46,7 @@ export default function DeleteTeamDialog({ children, teamId, teamName }: DeleteT
           description: `${teamName} has been deleted successfully`,
         })
         setOpen(false)
+        onSuccess?.() // ✅ call onSuccess if provided
         router.refresh()
       } else {
         const error = await response.json()

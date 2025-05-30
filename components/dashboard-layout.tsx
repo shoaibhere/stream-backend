@@ -113,9 +113,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </Sidebar>
 
         <SidebarInset className="flex-1">
-          <header className="sticky top-0 z-10 bg-white border-b border-slate-200 shadow-sm">
+          <header className="lg:hidden sticky top-0 z-10 bg-white border-b border-slate-200 shadow-sm">
             <div className="flex h-16 items-center justify-between px-6">
-              <SidebarTrigger className="lg:hidden" />
+              <SidebarTrigger className="lg:hidden bg-black" />
             </div>
           </header>
 

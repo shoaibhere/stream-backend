@@ -23,9 +23,10 @@ import { Loader2, Upload, X } from "lucide-react"
 interface TeamDialogProps {
   children: React.ReactNode
   teamId?: string
+  onSuccess?: () => void // ✅ add this line
 }
 
-export default function TeamDialog({ children, teamId }: TeamDialogProps) {
+export default function TeamDialog({ children, teamId,onSuccess }: TeamDialogProps) {
   const [open, setOpen] = useState(false)
   const [name, setName] = useState("")
   const [crestFile, setCrestFile] = useState<File | null>(null)
@@ -106,6 +107,7 @@ export default function TeamDialog({ children, teamId }: TeamDialogProps) {
           description: teamId ? "Team has been updated successfully" : "New team has been created",
         })
         setOpen(false)
+        onSuccess?.() // ✅ call onSuccess if provided
         router.refresh()
       } else {
         const error = await response.json()

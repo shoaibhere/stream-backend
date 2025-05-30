@@ -1,14 +1,90 @@
+"use client"
+
 import DashboardLayout from "@/components/dashboard-layout"
-import { getTeams } from "@/lib/data"
 import { Button } from "@/components/ui/button"
 import { Plus, Pencil, Trash2, Users } from "lucide-react"
 import Image from "next/image"
 import TeamDialog from "@/components/team-dialog"
 import DeleteTeamDialog from "@/components/delete-team-dialog"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState, useEffect } from "react"
+import { useToast } from "@/components/ui/use-toast"
 
-export default async function TeamsPage() {
-  const teams = await getTeams()
+interface Team {
+  _id: string
+  name: string
+  crestUrl?: string
+}
+
+export default function TeamsPage() {
+  const [teams, setTeams] = useState<Team[]>([])
+  const [loading, setLoading] = useState(true)
+  const { toast } = useToast()
+
+  const fetchTeams = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch('/api/teams')
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch teams')
+      }
+      
+      const data = await response.json()
+      setTeams(data)
+    } catch (error) {
+      console.error("Error fetching teams:", error)
+      toast({
+        title: "Error",
+        description: "Failed to load teams",
+        variant: "destructive"
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchTeams()
+  }, [])
+
+  const handleTeamCreated = () => {
+    fetchTeams()
+    toast({
+      title: "Success",
+      description: "Team created successfully",
+    })
+  }
+
+  const handleTeamDeleted = () => {
+    fetchTeams()
+    toast({
+      title: "Success",
+      description: "Team deleted successfully",
+    })
+  }
+
+  const handleTeamUpdated = () => {
+    fetchTeams()
+    toast({
+      title: "Success",
+      description: "Team updated successfully",
+    })
+  }
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="min-h-screen bg-white w-full">
+          <div className="container mx-auto px-4 py-8">
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+          </div>
+        </div>
+      </DashboardLayout>
+    )
+  }
 
   return (
     <DashboardLayout>
@@ -20,7 +96,7 @@ export default async function TeamsPage() {
               <h1 className="text-3xl font-bold tracking-tight text-slate-800">Teams Management</h1>
               <p className="text-slate-600">Manage football teams and their club crests</p>
             </div>
-            <TeamDialog>
+            <TeamDialog onSuccess={handleTeamCreated}>
               <Button className="admin-button-primary">
                 <Plus className="mr-2 h-4 w-4" />
                 Add Team
@@ -44,7 +120,7 @@ export default async function TeamsPage() {
                   </div>
                   <h3 className="text-lg font-medium text-slate-800 mb-2">No teams found</h3>
                   <p className="text-slate-500 text-center mb-6">Get started by adding your first football team</p>
-                  <TeamDialog>
+                  <TeamDialog onSuccess={handleTeamCreated}>
                     <Button className="admin-button-primary">
                       <Plus className="mr-2 h-4 w-4" />
                       Add Your First Team
@@ -71,7 +147,7 @@ export default async function TeamsPage() {
                             {team.crestUrl ? (
                               <div className="relative h-12 w-12 rounded-lg overflow-hidden border border-slate-200 shadow-sm">
                                 <Image
-                                  src={team.crestUrl || "/placeholder.svg"}
+                                  src={team.crestUrl}
                                   alt={team.name}
                                   fill
                                   className="object-contain"
@@ -85,7 +161,7 @@ export default async function TeamsPage() {
                           </td>
                           <td className="py-4 px-6">
                             <div className="flex justify-end gap-2">
-                              <TeamDialog teamId={team._id}>
+                              <TeamDialog teamId={team._id} onSuccess={handleTeamUpdated}>
                                 <Button
                                   size="sm"
                                   variant="outline"
@@ -95,7 +171,7 @@ export default async function TeamsPage() {
                                   <span className="sr-only">Edit</span>
                                 </Button>
                               </TeamDialog>
-                              <DeleteTeamDialog teamId={team._id} teamName={team.name}>
+                              <DeleteTeamDialog teamId={team._id} teamName={team.name} onSuccess={handleTeamDeleted}>
                                 <Button
                                   size="sm"
                                   variant="outline"

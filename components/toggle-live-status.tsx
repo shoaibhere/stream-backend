@@ -14,9 +14,10 @@ interface Match {
 
 interface ToggleLiveStatusProps {
   match: Match
+  onStatusChange: () => void
 }
 
-export default function ToggleLiveStatus({ match }: ToggleLiveStatusProps) {
+export default function ToggleLiveStatus({ match, onStatusChange }: ToggleLiveStatusProps) {
   const [isLive, setIsLive] = useState(match.isLive)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
@@ -42,6 +43,8 @@ export default function ToggleLiveStatus({ match }: ToggleLiveStatusProps) {
           title: `Match ${newStatus ? "is now live" : "is no longer live"}`,
           description: `${match.title} has been ${newStatus ? "set to live" : "set to not live"}`,
         })
+
+        onStatusChange?.() // ✅ invoke the callback here
         router.refresh()
       } else {
         const error = await response.json()

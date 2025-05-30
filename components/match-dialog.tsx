@@ -31,9 +31,11 @@ interface MatchDialogProps {
   children: React.ReactNode
   matchId?: string
   teams: Team[]
+  onSuccess?: () => void // ✅ add this line
 }
 
-export default function MatchDialog({ children, matchId, teams }: MatchDialogProps) {
+
+export default function MatchDialog({ children, matchId, teams,onSuccess }: MatchDialogProps) {
   const [open, setOpen] = useState(false)
   const [title, setTitle] = useState("")
   const [team1Id, setTeam1Id] = useState("")
@@ -110,13 +112,15 @@ export default function MatchDialog({ children, matchId, teams }: MatchDialogPro
       })
 
       if (response.ok) {
-        toast({
-          title: matchId ? "Match updated" : "Match created",
-          description: matchId ? "Match has been updated successfully" : "New match has been created",
-        })
-        setOpen(false)
-        router.refresh()
-      } else {
+  toast({
+    title: matchId ? "Match updated" : "Match created",
+    description: matchId ? "Match has been updated successfully" : "New match has been created",
+  })
+  setOpen(false)
+  onSuccess?.() // ✅ call onSuccess if provided
+  router.refresh()
+}
+ else {
         const error = await response.json()
         throw new Error(error.message || "Something went wrong")
       }

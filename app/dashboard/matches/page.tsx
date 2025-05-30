@@ -1,5 +1,6 @@
+"use client"
+
 import DashboardLayout from "@/components/dashboard-layout"
-import { getMatches, getTeams } from "@/lib/data"
 import { Button } from "@/components/ui/button"
 import { Plus, Pencil, Trash2, Tv, Radio, Calendar, Clock, Link2 } from "lucide-react"
 import Image from "next/image"
@@ -9,10 +10,91 @@ import ToggleLiveStatus from "@/components/toggle-live-status"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { format } from "date-fns"
+import { useState, useEffect } from "react"
+import { useToast } from "@/components/ui/use-toast"
 
-export default async function MatchesPage() {
-  const matches = await getMatches()
-  const teams = await getTeams()
+export default function MatchesPage() {
+  const [matches, setMatches] = useState<any[]>([])
+  const [teams, setTeams] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const { toast } = useToast()
+
+  const fetchData = async () => {
+    try {
+      setLoading(true)
+      const [matchesRes, teamsRes] = await Promise.all([
+        fetch('/api/matches'),
+        fetch('/api/teams')
+      ])
+      
+      if (!matchesRes.ok || !teamsRes.ok) {
+        throw new Error('Failed to fetch data')
+      }
+      
+      const [matchesData, teamsData] = await Promise.all([
+        matchesRes.json(),
+        teamsRes.json()
+      ])
+      
+      setMatches(matchesData)
+      setTeams(teamsData)
+    } catch (error) {
+      console.error("Error fetching data:", error)
+      toast({
+        title: "Error",
+        description: "Failed to fetch matches data",
+        variant: "destructive"
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  const handleMatchCreated = () => {
+    fetchData()
+    toast({
+      title: "Success",
+      description: "Match created successfully",
+    })
+  }
+
+  const handleMatchDeleted = () => {
+    fetchData()
+    toast({
+      title: "Success",
+      description: "Match deleted successfully",
+    })
+  }
+
+  const handleMatchUpdated = () => {
+    fetchData()
+    toast({
+      title: "Success",
+      description: "Match updated successfully",
+    })
+  }
+
+  const handleLiveStatusChanged = () => {
+    fetchData()
+  }
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="min-h-screen bg-gray-50 p-6">
+          <div className="max-w-7xl mx-auto space-y-8">
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+          </div>
+        </div>
+      </DashboardLayout>
+      )
+  }
 
   return (
     <DashboardLayout>
@@ -24,7 +106,7 @@ export default async function MatchesPage() {
               <h1 className="text-3xl font-bold tracking-tight text-gray-900">Live Matches Management</h1>
               <p className="text-gray-600">Manage football matches and streaming configurations</p>
             </div>
-            <MatchDialog teams={teams}>
+            <MatchDialog teams={teams} onSuccess={handleMatchCreated}>
               <Button className="bg-blue-600 hover:bg-blue-700 text-white">
                 <Plus className="mr-2 h-4 w-4" />
                 Add Match
@@ -48,7 +130,7 @@ export default async function MatchesPage() {
                   </div>
                   <h3 className="text-lg font-medium text-gray-900 mb-2">No matches found</h3>
                   <p className="text-gray-500 text-center mb-6">Create your first match to start streaming</p>
-                  <MatchDialog teams={teams}>
+                  <MatchDialog teams={teams} onSuccess={handleMatchCreated}>
                     <Button className="bg-blue-600 hover:bg-blue-700 text-white">
                       <Plus className="mr-2 h-4 w-4" />
                       Create Your First Match
@@ -188,12 +270,12 @@ export default async function MatchesPage() {
                                     "Offline"
                                   )}
                                 </Badge>
-                                <ToggleLiveStatus match={match} />
+                                <ToggleLiveStatus match={match} onStatusChange={handleLiveStatusChanged} />
                               </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-right">
                               <div className="flex justify-end gap-2">
-                                <MatchDialog matchId={match._id} teams={teams}>
+                                <MatchDialog matchId={match._id} teams={teams} onSuccess={handleMatchUpdated}>
                                   <Button
                                     size="sm"
                                     variant="outline"
@@ -203,7 +285,7 @@ export default async function MatchesPage() {
                                     <span className="sr-only">Edit</span>
                                   </Button>
                                 </MatchDialog>
-                                <DeleteMatchDialog matchId={match._id} matchTitle={match.title}>
+                                <DeleteMatchDialog matchId={match._id} matchTitle={match.title} onSuccess={handleMatchDeleted}>
                                   <Button
                                     size="sm"
                                     variant="outline"
