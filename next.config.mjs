@@ -41,11 +41,11 @@ const nextConfig = {
         destination: '/',
         permanent: true,
       },
-      {
-        source: '/login',
-        destination: '/',
-        permanent: true,
-      },
+      // {
+      //   source: '/login',
+      //   destination: '/',
+      //   permanent: true,
+      // },
     ];
   },
   async rewrites() {

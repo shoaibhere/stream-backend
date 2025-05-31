@@ -1,10 +1,16 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -58,24 +64,24 @@ export default function LoginForm() {
 
   return (
     <div className="w-full max-w-md mx-auto">
-      <Card className="admin-card border-0 shadow-2xl">
+      <Card className="border-0 shadow-2xl bg-gradient-to-br from-[#0f172a] to-[#1e293b] text-white">
         <CardHeader className="space-y-4 pb-8">
           <div className="flex justify-center">
-            <div className="admin-gradient p-4 rounded-2xl shadow-lg">
+            <div className="bg-gradient-to-r from-green-500 to-blue-500 p-4 rounded-2xl shadow-md">
               <Shield className="h-8 w-8 text-white" />
             </div>
           </div>
           <div className="text-center space-y-2">
-            <CardTitle className="text-2xl font-bold text-white">Admin Portal</CardTitle>
-            <CardDescription className="text-white">
-              Enter your credentials to access the football streaming dashboard
+            <CardTitle className="text-2xl font-bold">Admin Portal</CardTitle>
+            <CardDescription className="text-slate-300">
+              Enter your credentials to access the football dashboard
             </CardDescription>
           </div>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-6 px-8">
             <div className="space-y-3">
-              <Label htmlFor="password" className="text-sm font-medium text-slate-700">
+              <Label htmlFor="password" className="text-sm font-medium text-white">
                 Password
               </Label>
               <div className="relative">
@@ -85,13 +91,13 @@ export default function LoginForm() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
-                  className="pr-12 h-12 rounded-lg border-slate-200 focus:border-blue-500 focus:ring-blue-500"
+                  className="pr-12 h-12 rounded-lg bg-slate-800 text-white border-slate-600 focus:border-green-500 focus:ring-green-500"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-green-400 transition-colors"
                 >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
@@ -101,7 +107,7 @@ export default function LoginForm() {
           <CardFooter className="px-8 pb-8">
             <Button
               type="submit"
-              className="w-full h-12 admin-button-primary text-base font-medium"
+              className="w-full h-12 bg-green-500 hover:bg-green-600 text-white text-base font-medium rounded-lg transition-colors"
               disabled={isLoading}
             >
               {isLoading ? (
