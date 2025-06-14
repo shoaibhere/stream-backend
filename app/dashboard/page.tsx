@@ -1,17 +1,14 @@
-
-export const dynamic = "force-dynamic"
-
 import DashboardLayout from "@/components/dashboard-layout"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Users, Tv, Play, TrendingUp, Plus, Activity } from "lucide-react"
+import { Users, Tv, Play, ArrowRight, Radio } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { getTeamsCount, getMatchesCount, getLiveMatches } from "@/lib/data"
-
+import { getTeamsCount, getMatchesCount, getLiveMatches, getChannelsCount } from "@/lib/data"
 
 export default async function Dashboard() {
   const teamsCount = await getTeamsCount()
   const matchesCount = await getMatchesCount()
+  const channelsCount = await getChannelsCount()
   const liveMatches = await getLiveMatches()
   const liveMatchesCount = liveMatches.length
 
@@ -19,24 +16,32 @@ export default async function Dashboard() {
     {
       title: "Total Teams",
       value: teamsCount,
-      description: "Football teams in database",
+      description: "Registered football teams",
       icon: Users,
       color: "text-blue-600",
-      bgColor: "bg-blue-100/80",
+      bgColor: "bg-gray-100",
       href: "/dashboard/teams",
-      buttonText: "Manage Teams",
-      trend: "12% increase",
+      change: "+12%",
+    },
+    {
+      title: "Total Channels",
+      value: channelsCount,
+      description: "Streaming channels",
+      icon: Radio,
+      color: "text-purple-600",
+      bgColor: "bg-gray-100",
+      href: "/dashboard/channels",
+      change: "+5%",
     },
     {
       title: "Total Matches",
       value: matchesCount,
       description: "Configured match streams",
       icon: Tv,
-      color: "text-green-600",
-      bgColor: "bg-green-100/80",
+      color: "text-emerald-600",
+      bgColor: "bg-gray-100",
       href: "/dashboard/matches",
-      buttonText: "Manage Matches",
-      trend: "5 new this week",
+      change: "+8%",
     },
     {
       title: "Live Matches",
@@ -44,150 +49,139 @@ export default async function Dashboard() {
       description: "Currently streaming",
       icon: Play,
       color: "text-red-600",
-      bgColor: "bg-red-100/80",
-      href: "/dashboard/matches?status=live",
-      buttonText: "View Live",
-      trend: `${liveMatchesCount > 0 ? "Active now" : "None live"}`,
+      bgColor: "bg-gray-100",
+      href: "/dashboard/matches",
+      change: "Live",
     },
   ]
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen bg-gray-50 p-6">
-        <div className="max-w-7xl mx-auto space-y-8">
-          {/* Header */}
-          <div className="space-y-2">
-            <h1 className="text-3xl font-bold tracking-tight text-gray-900">Dashboard Overview</h1>
-            <p className="text-gray-600">Welcome to your football streaming admin dashboard</p>
-          </div>
+      <div className="space-y-8">
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold text-gray-900">Dashboard Overview</h1>
+          <p className="text-gray-600">Monitor your football streaming platform performance</p>
+        </div>
 
-          {/* Stats Grid */}
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {stats.map((stat) => (
-              <Card 
-                key={stat.title} 
-                className="border border-gray-200 bg-white shadow-sm hover:shadow-md transition-all duration-200"
-              >
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          {stats.map((stat) => (
+            <Card key={stat.title} className="bg-white hover:shadow-md transition-all duration-300 group">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                <div className="space-y-1">
                   <CardTitle className="text-sm font-medium text-gray-500">{stat.title}</CardTitle>
-                  <div className={`p-2 rounded-lg ${stat.bgColor}`}>
-                    <stat.icon className={`h-5 w-5 ${stat.color}`} />
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="space-y-1">
-                    <div className="text-3xl font-bold text-gray-900">{stat.value}</div>
-                    <p className="text-sm text-gray-500">{stat.description}</p>
-                    <p className="text-xs font-medium text-gray-400 mt-1">{stat.trend}</p>
-                  </div>
-                  <Button asChild size="sm" className="w-full mt-2" variant="outline">
-                    <Link href={stat.href} className="flex items-center">
-                      {stat.buttonText}
+                  <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
+                </div>
+                <div
+                  className={`p-3 rounded-xl ${stat.bgColor} group-hover:scale-105 transition-transform duration-200`}
+                >
+                  <stat.icon className={`h-6 w-6 ${stat.color}`} />
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <p className="text-sm text-gray-500">{stat.description}</p>
+                <div className="flex items-center justify-between">
+                  <span
+                    className={`text-xs font-medium px-2 py-1 rounded-full ${
+                      stat.change === "Live" ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-700"
+                    }`}
+                  >
+                    {stat.change}
+                  </span>
+                  <Button asChild variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <Link href={stat.href}>
+                      <ArrowRight className="h-4 w-4" />
                     </Link>
                   </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {/* Two-column section */}
-          <div className="grid gap-6 lg:grid-cols-3">
-            {/* Quick Actions */}
-            <Card className="lg:col-span-2 border border-gray-200 bg-white shadow-sm">
-              <CardHeader>
-                <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                  <Activity className="h-5 w-5 text-blue-600" />
-                  Quick Actions
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="grid gap-4 md:grid-cols-2">
-                <Button asChild className="w-full h-24 flex-col gap-2" variant="outline">
-                  <Link href="/dashboard/teams" className="flex flex-col items-center justify-center">
-                    <div className="p-3 rounded-full bg-white text-blue-600">
-                      <Plus className="h-6 w-6" />
-                    </div>
-                    <span>Add New Team</span>
-                  </Link>
-                </Button>
-                <Button asChild className="w-full h-24 flex-col gap-2" variant="outline">
-                  <Link href="/dashboard/matches" className="flex flex-col items-center justify-center">
-                    <div className="p-3 rounded-full bg-white text-green-600">
-                      <Tv className="h-6 w-6" />
-                    </div>
-                    <span>Create Match</span>
-                  </Link>
-                </Button>
-                <Button asChild className="w-full h-24 flex-col gap-2" variant="outline">
-                  <Link href="/dashboard/matches?status=live" className="flex flex-col items-center justify-center">
-                    <div className="p-3 rounded-full bg-white text-red-600">
-                      <Play className="h-6 w-6" />
-                    </div>
-                    <span>Live Controls</span>
-                  </Link>
-                </Button>
-                <Button asChild className="w-full h-24 flex-col gap-2" variant="outline">
-                  <Link href="/dashboard/teams" className="flex flex-col items-center justify-center">
-                    <div className="p-3 rounded-full bg-white text-purple-600">
-                      <TrendingUp className="h-6 w-6" />
-                    </div>
-                    <span>View Teams</span>
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* System Status */}
-            <Card className="border border-gray-200 bg-white shadow-sm">
-              <CardHeader>
-                <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                  <div className="p-1 rounded-full bg-green-100 text-green-600">
-                    <Activity className="h-4 w-4" />
-                  </div>
-                  System Status
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-full bg-blue-100/50">
-                      <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                    </div>
-                    <span className="text-sm font-medium text-gray-700">Database</span>
-                  </div>
-                  <span className="text-sm font-medium text-green-600">Connected</span>
-                </div>
-                <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-full bg-green-100/50">
-                      <div className="w-2 h-2 bg-green-600 rounded-full"></div>
-                    </div>
-                    <span className="text-sm font-medium text-gray-700">Cloudinary</span>
-                  </div>
-                  <span className="text-sm font-medium text-green-600">Active</span>
-                </div>
-                <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-full bg-red-100/50">
-                      <div className={`w-2 h-2 rounded-full ${liveMatchesCount > 0 ? "bg-red-600" : "bg-yellow-500"}`}></div>
-                    </div>
-                    <span className="text-sm font-medium text-gray-700">Live Streams</span>
-                  </div>
-                  <span className={`text-sm font-medium ${liveMatchesCount > 0 ? "text-red-600" : "text-yellow-600"}`}>
-                    {liveMatchesCount > 0 ? `${liveMatchesCount} Active` : "Standby"}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-full bg-purple-100/50">
-                      <div className="w-2 h-2 bg-purple-600 rounded-full"></div>
-                    </div>
-                    <span className="text-sm font-medium text-gray-700">API Service</span>
-                  </div>
-                  <span className="text-sm font-medium text-green-600">Operational</span>
                 </div>
               </CardContent>
             </Card>
-          </div>
+          ))}
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-3">
+          <Card className="bg-white lg:col-span-2">
+            <CardHeader>
+              <CardTitle className="text-xl font-semibold text-gray-900">Quick Actions</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Button asChild className="justify-start h-12">
+                  <Link href="/dashboard/teams">
+                    <Users className="h-5 w-5 mr-3" />
+                    Add New Team
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="justify-start h-12">
+                  <Link href="/dashboard/channels">
+                    <Radio className="h-5 w-5 mr-3" />
+                    Create Channel
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="justify-start h-12">
+                  <Link href="/dashboard/matches">
+                    <Tv className="h-5 w-5 mr-3" />
+                    Create Match
+                  </Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white">
+            <CardHeader>
+              <CardTitle className="text-xl font-semibold text-gray-900">System Status</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3 text-sm text-gray-600">
+                <div className="flex items-center justify-between">
+                  <span>Database</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="font-medium text-green-600">Online</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>Cloudinary CDN</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="font-medium text-green-600">Active</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>Channels</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="font-medium text-green-600">{channelsCount} Active</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>Live Streams</span>
+                  <div className="flex items-center gap-2">
+                    <div
+                      className={`w-2 h-2 rounded-full ${
+                        liveMatchesCount > 0 ? "bg-green-500 animate-pulse" : "bg-yellow-500"
+                      }`}
+                    ></div>
+                    <span
+                      className={`font-medium ${
+                        liveMatchesCount > 0 ? "text-green-600" : "text-yellow-600"
+                      }`}
+                    >
+                      {liveMatchesCount > 0 ? `${liveMatchesCount} Active` : "None Active"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-gray-100">
+                <div className="text-sm text-gray-600 mb-2">Server Load</div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="bg-green-500 h-2 rounded-full w-3/4"></div>
+                </div>
+                <div className="text-xs text-gray-500 mt-1">75% - Optimal</div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </DashboardLayout>

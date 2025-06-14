@@ -10,11 +10,16 @@ export async function GET() {
     // Get all live matches
     const liveMatches = await db.collection("matches").find({ isLive: true }).sort({ createdAt: -1 }).toArray()
 
-    // Get team details for each match
-    const matchesWithTeams = await Promise.all(
+    // Get team and channel details for each match
+    const matchesWithDetails = await Promise.all(
       liveMatches.map(async (match) => {
         const team1 = await db.collection("teams").findOne({ _id: new ObjectId(match.team1Id) })
         const team2 = await db.collection("teams").findOne({ _id: new ObjectId(match.team2Id) })
+        
+        // Get channels for this match
+        const channels = await db.collection("channels").find({ 
+          _id: { $in: match.channelIds.map((id: string) => new ObjectId(id)) } 
+        }).toArray()
 
         return {
           matchId: match._id,
@@ -23,12 +28,17 @@ export async function GET() {
           team1Crest: team1?.crestUrl || null,
           team2Name: team2?.name || "Unknown Team",
           team2Crest: team2?.crestUrl || null,
-          m3u8Url: match.streamUrl,
+          channels: channels.map(channel => ({
+            channelId: channel._id,
+            name: channel.name,
+            m3u8Url: channel.m3u8Url,
+            headers: channel.headers || []
+          }))
         }
-      }),
+      })
     )
 
-    return NextResponse.json(matchesWithTeams)
+    return NextResponse.json(matchesWithDetails)
   } catch (error) {
     console.error("Error fetching live matches:", error)
     return NextResponse.json({ message: "Failed to fetch live matches" }, { status: 500 })

@@ -1,21 +1,9 @@
-"use client";
+"use client"
 
-import type React from "react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Command,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandEmpty,
-} from "@/components/ui/command";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import type React from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -24,105 +12,136 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/components/ui/use-toast";
-import { Loader2, Radio } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { useToast } from "@/components/ui/use-toast"
+import { Loader2, Radio } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
+import { Checkbox } from "@/components/ui/checkbox"
 
 interface Team {
-  _id: string;
-  name: string;
-  crestUrl?: string;
+  _id: string
+  name: string
+  crestUrl?: string
+}
+
+interface Channel {
+  _id: string
+  name: string
+  m3u8Url: string
+  headers?: Array<{ name: string; value: string }>
 }
 
 interface MatchDialogProps {
-  children: React.ReactNode;
-  matchId?: string;
-  teams: Team[];
-  onSuccess?: () => void; // ✅ add this line
+  children: React.ReactNode
+  matchId?: string
+  teams: Team[]
 }
 
-export default function MatchDialog({
-  children,
-  matchId,
-  teams,
-  onSuccess,
-}: MatchDialogProps) {
-  const [open, setOpen] = useState(false);
-  const [title, setTitle] = useState("");
-  const [team1Id, setTeam1Id] = useState("");
-  const [team2Id, setTeam2Id] = useState("");
-  const [streamUrl, setStreamUrl] = useState("");
-  const [isLive, setIsLive] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingMatch, setIsLoadingMatch] = useState(false);
-  const router = useRouter();
-  const { toast } = useToast();
+export default function MatchDialog({ children, matchId, teams }: MatchDialogProps) {
+  const [open, setOpen] = useState(false)
+  const [title, setTitle] = useState("")
+  const [team1Id, setTeam1Id] = useState("")
+  const [team2Id, setTeam2Id] = useState("")
+  const [channelIds, setChannelIds] = useState<string[]>([])
+  const [isLive, setIsLive] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [isLoadingMatch, setIsLoadingMatch] = useState(false)
+  const [channels, setChannels] = useState<Channel[]>([])
+  const router = useRouter()
+  const { toast } = useToast()
+
+  // Fetch channels on component mount
+  useEffect(() => {
+    const fetchChannels = async () => {
+      try {
+        const response = await fetch("/api/channels")
+        if (response.ok) {
+          const channelsData = await response.json()
+          setChannels(channelsData)
+        }
+      } catch (error) {
+        console.error("Failed to fetch channels:", error)
+      }
+    }
+
+    fetchChannels()
+  }, [])
 
   // Fetch match data if editing
   useEffect(() => {
     if (matchId && open) {
       const fetchMatch = async () => {
-        setIsLoadingMatch(true);
+        setIsLoadingMatch(true)
         try {
-          const response = await fetch(`/api/matches/${matchId}`);
+          const response = await fetch(`/api/matches/${matchId}`)
           if (response.ok) {
-            const match = await response.json();
-            setTitle(match.title);
-            setTeam1Id(match.team1Id);
-            setTeam2Id(match.team2Id);
-            setStreamUrl(match.streamUrl);
-            setIsLive(match.isLive);
+            const match = await response.json()
+            setTitle(match.title)
+            setTeam1Id(match.team1Id)
+            setTeam2Id(match.team2Id)
+            setChannelIds(match.channelIds || [])
+            setIsLive(match.isLive)
           }
         } catch (error) {
           toast({
             title: "Error",
             description: "Failed to load match data",
             variant: "destructive",
-          });
+          })
         } finally {
-          setIsLoadingMatch(false);
+          setIsLoadingMatch(false)
         }
-      };
+      }
 
-      fetchMatch();
+      fetchMatch()
     }
-  }, [matchId, open, toast]);
+  }, [matchId, open, toast])
+
+  const handleChannelToggle = (channelId: string, checked: boolean) => {
+    if (checked) {
+      setChannelIds([...channelIds, channelId])
+    } else {
+      setChannelIds(channelIds.filter((id) => id !== channelId))
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (team1Id === team2Id) {
       toast({
         title: "Error",
-        description: "Home Team and Away Team cannot be the same",
+        description: "Team 1 and Team 2 cannot be the same",
         variant: "destructive",
-      });
-      return;
+      })
+      return
     }
 
-    setIsLoading(true);
+    if (channelIds.length === 0) {
+      toast({
+        title: "Error",
+        description: "Please select at least one channel",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setIsLoading(true)
 
     try {
       const matchData = {
         title,
         team1Id,
         team2Id,
-        streamUrl,
+        channelIds,
         isLive,
-      };
+      }
 
-      const url = matchId ? `/api/matches/${matchId}` : "/api/matches";
-      const method = matchId ? "PUT" : "POST";
+      const url = matchId ? `/api/matches/${matchId}` : "/api/matches"
+      const method = matchId ? "PUT" : "POST"
 
       const response = await fetch(url, {
         method,
@@ -130,60 +149,54 @@ export default function MatchDialog({
           "Content-Type": "application/json",
         },
         body: JSON.stringify(matchData),
-      });
+      })
 
       if (response.ok) {
         toast({
           title: matchId ? "Match updated" : "Match created",
-          description: matchId
-            ? "Match has been updated successfully"
-            : "New match has been created",
-        });
-        setOpen(false);
-        onSuccess?.(); // ✅ call onSuccess if provided
-        router.refresh();
+          description: matchId ? "Match has been updated successfully" : "New match has been created",
+        })
+        setOpen(false)
+        router.refresh()
       } else {
-        const error = await response.json();
-        throw new Error(error.message || "Something went wrong");
+        const error = await response.json()
+        throw new Error(error.message || "Something went wrong")
       }
     } catch (error) {
       toast({
         title: "Error",
-        description:
-          error instanceof Error ? error.message : "Failed to save match",
+        description: error instanceof Error ? error.message : "Failed to save match",
         variant: "destructive",
-      });
+      })
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const resetForm = () => {
-    setTitle("");
-    setTeam1Id("");
-    setTeam2Id("");
-    setStreamUrl("");
-    setIsLive(false);
-  };
+    setTitle("")
+    setTeam1Id("")
+    setTeam2Id("")
+    setChannelIds([])
+    setIsLive(false)
+  }
 
   return (
     <Dialog
       open={open}
       onOpenChange={(newOpen) => {
-        setOpen(newOpen);
-        if (!newOpen) resetForm();
+        setOpen(newOpen)
+        if (!newOpen) resetForm()
       }}
     >
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
         <DialogHeader className="space-y-3">
-          <DialogTitle className="text-xl font-semibold text-slate-800">
+          <DialogTitle className="text-xl font-semibold text-gray-900">
             {matchId ? "Edit Match" : "Add New Match"}
           </DialogTitle>
-          <DialogDescription className="text-slate-600">
-            {matchId
-              ? "Update match details below"
-              : "Enter match details below to create a new match"}
+          <DialogDescription className="text-gray-600">
+            {matchId ? "Update match details below" : "Enter match details below to create a new match"}
           </DialogDescription>
         </DialogHeader>
 
@@ -195,127 +208,99 @@ export default function MatchDialog({
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-5">
               <div className="space-y-2">
-                <Label
-                  htmlFor="title"
-                  className="text-sm font-medium text-slate-700"
-                >
+                <Label htmlFor="title" className="text-sm font-medium text-gray-700">
                   Match Title
                 </Label>
                 <Input
                   id="title"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g., Premier League Final"
-                  className="h-11 rounded-lg border-slate-200 focus:border-blue-500 focus:ring-blue-500"
+                  placeholder="e.g., Champions League Final"
+                  className="dashboard-input"
                   required
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="team1"
-                    className="text-sm font-medium text-slate-700"
-                  >
-                    Home Team
+                  <Label htmlFor="team1" className="text-sm font-medium text-gray-700">
+                    Team 1
                   </Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start h-11 rounded-lg border-slate-200"
-                      >
-                        {teams.find((team) => team._id === team1Id)?.name ||
-                          "Select first team"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-full p-0">
-                      <Command>
-                        <CommandInput placeholder="Search team..." />
-                        <CommandList>
-                          <CommandEmpty>No team found.</CommandEmpty>
-                          {teams.map((team) => (
-                            <CommandItem
-                              key={team._id}
-                              value={team.name}
-                              onSelect={() => setTeam1Id(team._id)}
-                            >
-                              {team.name}
-                            </CommandItem>
-                          ))}
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
+                  <Select value={team1Id} onValueChange={setTeam1Id} required>
+                    <SelectTrigger id="team1" className="dashboard-input">
+                      <SelectValue placeholder="Select first team" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {teams.map((team) => (
+                        <SelectItem key={team._id} value={team._id}>
+                          {team.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="team2"
-                    className="text-sm font-medium text-slate-700"
-                  >
-                    Away Team
+                  <Label htmlFor="team2" className="text-sm font-medium text-gray-700">
+                    Team 2
                   </Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start h-11 rounded-lg border-slate-200"
-                      >
-                        {teams.find((team) => team._id === team2Id)?.name ||
-                          "Select second team"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-full p-0">
-                      <Command>
-                        <CommandInput placeholder="Search team..." />
-                        <CommandList>
-                          <CommandEmpty>No team found.</CommandEmpty>
-                          {teams.map((team) => (
-                            <CommandItem
-                              key={team._id}
-                              value={team.name}
-                              onSelect={() => setTeam2Id(team._id)}
-                            >
-                              {team.name}
-                            </CommandItem>
-                          ))}
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
+                  <Select value={team2Id} onValueChange={setTeam2Id} required>
+                    <SelectTrigger id="team2" className="dashboard-input">
+                      <SelectValue placeholder="Select second team" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {teams.map((team) => (
+                        <SelectItem key={team._id} value={team._id}>
+                          {team.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label
-                  htmlFor="streamUrl"
-                  className="text-sm font-medium text-slate-700"
-                >
-                  Stream URL (m3u8)
+              <div className="space-y-3">
+                <Label className="text-sm font-medium text-gray-700">
+                  Select Channels ({channelIds.length} selected)
                 </Label>
-                <Input
-                  id="streamUrl"
-                  value={streamUrl}
-                  onChange={(e) => setStreamUrl(e.target.value)}
-                  placeholder="https://example.com/stream.m3u8"
-                  className="h-11 rounded-lg border-slate-200 focus:border-blue-500 focus:ring-blue-500 font-mono text-sm"
-                  required
-                />
+                {channels.length > 0 ? (
+                  <div className="space-y-3 max-h-48 overflow-y-auto border border-gray-200 rounded-lg p-4">
+                    {channels.map((channel) => (
+                      <div key={channel._id} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+                        <Checkbox
+                          id={channel._id}
+                          checked={channelIds.includes(channel._id)}
+                          onCheckedChange={(checked) => handleChannelToggle(channel._id, checked as boolean)}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <Label htmlFor={channel._id} className="font-medium text-gray-900 cursor-pointer">
+                            {channel.name}
+                          </Label>
+                          <p className="text-sm text-gray-500 font-mono truncate mt-1">{channel.m3u8Url}</p>
+                          {channel.headers && channel.headers.length > 0 && (
+                            <p className="text-xs text-gray-400 mt-1">
+                              {channel.headers.length} header{channel.headers.length !== 1 ? "s" : ""} configured
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-lg">
+                    <p className="text-sm">No channels available</p>
+                    <p className="text-xs mt-1">Create channels first to assign them to matches</p>
+                  </div>
+                )}
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200">
+              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
                 <div className="space-y-1">
-                  <Label
-                    htmlFor="isLive"
-                    className="text-sm font-medium text-slate-700 flex items-center gap-2"
-                  >
+                  <Label htmlFor="isLive" className="text-sm font-medium text-gray-700 flex items-center gap-2">
                     <Radio className="h-4 w-4" />
                     Live Status
                   </Label>
-                  <p className="text-xs text-slate-500">
-                    Enable to make this match available for streaming
-                  </p>
+                  <p className="text-xs text-gray-500">Enable to make this match available for streaming</p>
                 </div>
                 <Switch
                   id="isLive"
@@ -331,15 +316,11 @@ export default function MatchDialog({
                 type="button"
                 variant="outline"
                 onClick={() => setOpen(false)}
-                className="admin-button-primary"
+                className="dashboard-button-secondary"
               >
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                disabled={isLoading}
-                className="admin-button-secondary"
-              >
+              <Button type="submit" disabled={isLoading} className="dashboard-button-primary">
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {matchId ? "Update Match" : "Create Match"}
               </Button>
@@ -348,5 +329,5 @@ export default function MatchDialog({
         )}
       </DialogContent>
     </Dialog>
-  );
+  )
 }

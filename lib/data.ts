@@ -25,6 +25,30 @@ export async function getTeamById(id: string) {
   return JSON.parse(JSON.stringify(team))
 }
 
+// Channels
+export async function getChannels() {
+  const client = await clientPromise
+  const db = client.db()
+
+  const channels = await db.collection("channels").find({}).sort({ name: 1 }).toArray()
+  return JSON.parse(JSON.stringify(channels))
+}
+
+export async function getChannelsCount() {
+  const client = await clientPromise
+  const db = client.db()
+
+  return await db.collection("channels").countDocuments()
+}
+
+export async function getChannelById(id: string) {
+  const client = await clientPromise
+  const db = client.db()
+
+  const channel = await db.collection("channels").findOne({ _id: new ObjectId(id) })
+  return JSON.parse(JSON.stringify(channel))
+}
+
 // Matches
 export async function getMatches() {
   const client = await clientPromise

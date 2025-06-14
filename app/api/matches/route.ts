@@ -19,10 +19,10 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json()
-    const { title, team1Id, team2Id, streamUrl, isLive } = data
+    const { title, team1Id, team2Id, channelIds, isLive } = data
 
-    if (!title || !team1Id || !team2Id || !streamUrl) {
-      return NextResponse.json({ message: "Missing required fields" }, { status: 400 })
+    if (!title || !team1Id || !team2Id || !channelIds || !Array.isArray(channelIds) || channelIds.length === 0) {
+      return NextResponse.json({ message: "Missing required fields or no channels selected" }, { status: 400 })
     }
 
     if (team1Id === team2Id) {
@@ -40,12 +40,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: "One or both teams do not exist" }, { status: 400 })
     }
 
+    // Verify channels exist
+    const channels = await db.collection("channels").find({ 
+      _id: { $in: channelIds.map((id: string) => new ObjectId(id)) } 
+    }).toArray()
+
+    if (channels.length !== channelIds.length) {
+      return NextResponse.json({ message: "One or more channels do not exist" }, { status: 400 })
+    }
+
     // Create match in database
     const result = await db.collection("matches").insertOne({
       title,
       team1Id,
       team2Id,
-      streamUrl,
+      channelIds,
       isLive: isLive || false,
       createdAt: new Date(),
     })
