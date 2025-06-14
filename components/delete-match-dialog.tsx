@@ -22,10 +22,9 @@ interface DeleteMatchDialogProps {
   children: React.ReactNode
   matchId: string
   matchTitle: string
-  onSuccess?: () => void // ✅ add this line
 }
 
-export default function DeleteMatchDialog({ children, matchId, matchTitle, onSuccess}: DeleteMatchDialogProps) {
+export default function DeleteMatchDialog({ children, matchId, matchTitle }: DeleteMatchDialogProps) {
   const [open, setOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
@@ -45,8 +44,9 @@ export default function DeleteMatchDialog({ children, matchId, matchTitle, onSuc
           description: `${matchTitle} has been deleted successfully`,
         })
         setOpen(false)
-        onSuccess?.() // ✅ call onSuccess if provided
         router.refresh()
+        // Trigger a custom event to refresh data across components
+        window.dispatchEvent(new CustomEvent("dataUpdated", { detail: { type: "match" } }))
       } else {
         const error = await response.json()
         throw new Error(error.message || "Failed to delete match")

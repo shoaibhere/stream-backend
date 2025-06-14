@@ -14,10 +14,9 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarTrigger,
   SidebarInset,
 } from "@/components/ui/sidebar"
-import { Shield, Users, Tv, LogOut, BarChart3, Menu, Radio } from "lucide-react"
+import { Shield, Users, Tv, LogOut, BarChart3, Radio } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -32,9 +31,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const handleLogout = async () => {
     try {
-      await fetch("/api/auth/logout", {
-        method: "POST",
-      })
+      await fetch("/api/auth/logout", { method: "POST" })
       toast({
         title: "Logged out successfully",
         description: "You have been securely logged out",
@@ -57,14 +54,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: "Live Matches", href: "/dashboard/matches", icon: Tv },
   ]
 
-  if (!mounted) {
-    return null
-  }
+  if (!mounted) return null
 
   return (
     <SidebarProvider>
       <div className="flex min-h-screen bg-gray-50">
-        <Sidebar className="border-r border-gray-200 bg-white shadow-sm">
+        {/* Desktop Sidebar */}
+        <Sidebar className="hidden lg:flex border-r border-gray-200 bg-white shadow-sm">
           <SidebarHeader className="border-b border-gray-100 p-6">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-sm">
@@ -112,6 +108,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </Sidebar>
 
         <SidebarInset className="flex-1">
+          {/* Mobile Top Nav */}
+          <nav className="lg:hidden flex items-center justify-around gap-1 px-2 py-3 border-b border-gray-200 bg-white shadow-sm">
+            {navItems.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`flex flex-col items-center text-xs px-2 py-1 transition-all ${
+                  pathname === item.href
+                    ? "text-blue-600 font-semibold"
+                    : "text-gray-600 hover:text-blue-600"
+                }`}
+              >
+                <item.icon className="h-5 w-5 mb-1" />
+                {item.name}
+              </Link>
+            ))}
+          </nav>
+
           <main className="flex-1 p-4 lg:p-8 bg-white">
             <div className="max-w-7xl mx-auto">{children}</div>
           </main>

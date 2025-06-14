@@ -14,10 +14,9 @@ interface Match {
 
 interface ToggleLiveStatusProps {
   match: Match
-  onStatusChange: () => void
 }
 
-export default function ToggleLiveStatus({ match, onStatusChange }: ToggleLiveStatusProps) {
+export default function ToggleLiveStatus({ match }: ToggleLiveStatusProps) {
   const [isLive, setIsLive] = useState(match.isLive)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
@@ -41,11 +40,11 @@ export default function ToggleLiveStatus({ match, onStatusChange }: ToggleLiveSt
         setIsLive(newStatus)
         toast({
           title: `Match ${newStatus ? "is now live" : "is no longer live"}`,
-          description: `${match.title} has been ${newStatus ? "set to live" : "set to not live"}`,
+          description: `${match.title} has been ${newStatus ? "set to live" : "set to offline"}`,
         })
-
-        onStatusChange?.() // ✅ invoke the callback here
         router.refresh()
+        // Trigger a custom event to refresh data across components
+        window.dispatchEvent(new CustomEvent("dataUpdated", { detail: { type: "match" } }))
       } else {
         const error = await response.json()
         throw new Error(error.message || "Failed to update live status")
@@ -75,7 +74,7 @@ export default function ToggleLiveStatus({ match, onStatusChange }: ToggleLiveSt
       onCheckedChange={toggleLiveStatus}
       disabled={isLoading}
       aria-label="Toggle live status"
-      className="data-[state=checked]:bg-red-500 data-[state=unchecked]:bg-slate-200"
+      className="data-[state=checked]:bg-red-500 data-[state=unchecked]:bg-gray-200"
     />
   )
 }

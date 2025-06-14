@@ -75,9 +75,7 @@ export default function ChannelDialog({ children, channelId }: ChannelDialogProp
   }
 
   const updateHeader = (index: number, field: "name" | "value", value: string) => {
-    const updatedHeaders = headers.map((header, i) =>
-      i === index ? { ...header, [field]: value } : header
-    )
+    const updatedHeaders = headers.map((header, i) => (i === index ? { ...header, [field]: value } : header))
     setHeaders(updatedHeaders)
   }
 
@@ -87,7 +85,7 @@ export default function ChannelDialog({ children, channelId }: ChannelDialogProp
 
     try {
       // Filter out empty headers
-      const validHeaders = headers.filter(header => header.name.trim() && header.value.trim())
+      const validHeaders = headers.filter((header) => header.name.trim() && header.value.trim())
 
       const channelData = {
         name,
@@ -113,6 +111,8 @@ export default function ChannelDialog({ children, channelId }: ChannelDialogProp
         })
         setOpen(false)
         router.refresh()
+        // Trigger a custom event to refresh data across components
+        window.dispatchEvent(new CustomEvent('dataUpdated', { detail: { type: 'channel' } }))
       } else {
         const error = await response.json()
         throw new Error(error.message || "Something went wrong")
@@ -143,13 +143,15 @@ export default function ChannelDialog({ children, channelId }: ChannelDialogProp
       }}
     >
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px] w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)] overflow-y-auto">
         <DialogHeader className="space-y-3">
           <DialogTitle className="text-xl font-semibold text-gray-900">
             {channelId ? "Edit Channel" : "Add New Channel"}
           </DialogTitle>
           <DialogDescription className="text-gray-600">
-            {channelId ? "Update channel details below" : "Enter channel details below to create a new streaming channel"}
+            {channelId
+              ? "Update channel details below"
+              : "Enter channel details below to create a new streaming channel"}
           </DialogDescription>
         </DialogHeader>
 
@@ -234,14 +236,21 @@ export default function ChannelDialog({ children, channelId }: ChannelDialogProp
                 {headers.length === 0 && (
                   <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-lg">
                     <p className="text-sm">No headers configured</p>
-                    <p className="text-xs mt-1">Headers are optional and used for authentication or custom configurations</p>
+                    <p className="text-xs mt-1">
+                      Headers are optional and used for authentication or custom configurations
+                    </p>
                   </div>
                 )}
               </div>
             </div>
 
             <DialogFooter className="gap-3 sm:gap-2">
-              <Button type="button" variant="outline" onClick={() => setOpen(false)} className="dashboard-button-secondary">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpen(false)}
+                className="dashboard-button-secondary"
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={isLoading} className="dashboard-button-primary">

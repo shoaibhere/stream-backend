@@ -18,15 +18,14 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/ui/use-toast"
 import Image from "next/image"
-import { Loader2, Upload, X } from "lucide-react"
+import { Loader2, Upload, X } from 'lucide-react'
 
 interface TeamDialogProps {
   children: React.ReactNode
   teamId?: string
-  onSuccess?: () => void // ✅ add this line
 }
 
-export default function TeamDialog({ children, teamId,onSuccess }: TeamDialogProps) {
+export default function TeamDialog({ children, teamId }: TeamDialogProps) {
   const [open, setOpen] = useState(false)
   const [name, setName] = useState("")
   const [crestFile, setCrestFile] = useState<File | null>(null)
@@ -107,8 +106,9 @@ export default function TeamDialog({ children, teamId,onSuccess }: TeamDialogPro
           description: teamId ? "Team has been updated successfully" : "New team has been created",
         })
         setOpen(false)
-        onSuccess?.() // ✅ call onSuccess if provided
         router.refresh()
+        // Trigger a custom event to refresh data across components
+        window.dispatchEvent(new CustomEvent('dataUpdated', { detail: { type: 'team' } }))
       } else {
         const error = await response.json()
         throw new Error(error.message || "Something went wrong")
@@ -139,7 +139,7 @@ export default function TeamDialog({ children, teamId,onSuccess }: TeamDialogPro
       }}
     >
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px] w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)] overflow-y-auto">
         <DialogHeader className="space-y-3">
           <DialogTitle className="text-xl font-semibold text-slate-800">
             {teamId ? "Edit Team" : "Add New Team"}
@@ -214,7 +214,7 @@ export default function TeamDialog({ children, teamId,onSuccess }: TeamDialogPro
             </div>
 
             <DialogFooter className="gap-3 sm:gap-2">
-              <Button type="button" variant="outline" onClick={() => setOpen(false)} className="admin-button-primary">
+              <Button type="button" variant="outline" onClick={() => setOpen(false)} className="admin-button-secondary">
                 Cancel
               </Button>
               <Button type="submit" disabled={isLoading} className="admin-button-primary">

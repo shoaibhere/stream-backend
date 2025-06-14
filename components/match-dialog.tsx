@@ -16,7 +16,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/ui/use-toast"
-import { Loader2, Radio } from "lucide-react"
+import { Loader2, Radio } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -100,6 +100,30 @@ export default function MatchDialog({ children, matchId, teams }: MatchDialogPro
     }
   }, [matchId, open, toast])
 
+  // Add this useEffect after the existing useEffects
+  useEffect(() => {
+    const handleDataUpdate = (event: CustomEvent) => {
+      if (event.detail.type === 'channel') {
+        // Refresh channels when a channel is updated
+        const fetchChannels = async () => {
+          try {
+            const response = await fetch("/api/channels")
+            if (response.ok) {
+              const channelsData = await response.json()
+              setChannels(channelsData)
+            }
+          } catch (error) {
+            console.error("Failed to fetch channels:", error)
+          }
+        }
+        fetchChannels()
+      }
+    }
+
+    window.addEventListener('dataUpdated', handleDataUpdate as EventListener)
+    return () => window.removeEventListener('dataUpdated', handleDataUpdate as EventListener)
+  }, [])
+
   const handleChannelToggle = (channelId: string, checked: boolean) => {
     if (checked) {
       setChannelIds([...channelIds, channelId])
@@ -158,6 +182,8 @@ export default function MatchDialog({ children, matchId, teams }: MatchDialogPro
         })
         setOpen(false)
         router.refresh()
+        // Trigger a custom event to refresh data across components
+        window.dispatchEvent(new CustomEvent('dataUpdated', { detail: { type: 'match' } }))
       } else {
         const error = await response.json()
         throw new Error(error.message || "Something went wrong")
@@ -190,7 +216,7 @@ export default function MatchDialog({ children, matchId, teams }: MatchDialogPro
       }}
     >
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px] w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)] overflow-y-auto">
         <DialogHeader className="space-y-3">
           <DialogTitle className="text-xl font-semibold text-gray-900">
             {matchId ? "Edit Match" : "Add New Match"}

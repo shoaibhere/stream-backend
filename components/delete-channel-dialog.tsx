@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
-import { Loader2 } from "lucide-react"
+import { Loader2 } from 'lucide-react'
 
 interface DeleteChannelDialogProps {
   children: React.ReactNode
@@ -44,6 +44,8 @@ export default function DeleteChannelDialog({ children, channelId, channelName }
         })
         setOpen(false)
         router.refresh()
+        // Trigger a custom event to refresh data across components
+        window.dispatchEvent(new CustomEvent('dataUpdated', { detail: { type: 'channel' } }))
       } else {
         const error = await response.json()
         throw new Error(error.message || "Failed to delete channel")

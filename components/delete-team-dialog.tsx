@@ -16,17 +16,15 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
-import { Loader2 } from "lucide-react"
+import { Loader2 } from 'lucide-react'
 
 interface DeleteTeamDialogProps {
   children: React.ReactNode
   teamId: string
   teamName: string
-  onSuccess?: () => void // ✅ add this line
-  
 }
 
-export default function DeleteTeamDialog({ children, teamId, teamName, onSuccess }: DeleteTeamDialogProps) {
+export default function DeleteTeamDialog({ children, teamId, teamName }: DeleteTeamDialogProps) {
   const [open, setOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
@@ -46,8 +44,9 @@ export default function DeleteTeamDialog({ children, teamId, teamName, onSuccess
           description: `${teamName} has been deleted successfully`,
         })
         setOpen(false)
-        onSuccess?.() // ✅ call onSuccess if provided
         router.refresh()
+        // Trigger a custom event to refresh data across components
+        window.dispatchEvent(new CustomEvent('dataUpdated', { detail: { type: 'team' } }))
       } else {
         const error = await response.json()
         throw new Error(error.message || "Failed to delete team")
