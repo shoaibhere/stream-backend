@@ -17,42 +17,51 @@ interface Channel {
   createdAt: string
 }
 
-interface ChannelsPageClientProps {
-  initialChannels: Channel[]
-}
+export default function ChannelsPageClient() {
+  const [channels, setChannels] = useState<Channel[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
-export default function ChannelsPageClient({ initialChannels }: ChannelsPageClientProps) {
-  const [channels, setChannels] = useState(initialChannels)
 
-  const fetchChannels = async () => {
+  const fetchAllData = async () => {
     try {
-      const response = await fetch("/api/channels")
-      if (response.ok) {
-        const updatedChannels = await response.json()
-        setChannels(updatedChannels)
+      setIsLoading(true)
+      const [channelsRes] = await Promise.all([
+        fetch("/api/channels")
+      ])
+
+      if (channelsRes.ok) {
+        const [channelsData] = await Promise.all([
+          channelsRes.json()
+        ])
+        setChannels(channelsData)
       }
     } catch (error) {
-      console.error("Failed to fetch channels:", error)
+      console.error("Failed to fetch data:", error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
   useEffect(() => {
+    fetchAllData()
+
     const handleDataUpdate = (event: CustomEvent) => {
       if (event.detail.type === "channel") {
-        fetchChannels()
+        fetchAllData()
       }
     }
 
     window.addEventListener("dataUpdated", handleDataUpdate as EventListener)
-
-    // Set up periodic refresh every 30 seconds
-    const interval = setInterval(fetchChannels, 30000)
-
-    return () => {
-      window.removeEventListener("dataUpdated", handleDataUpdate as EventListener)
-      clearInterval(interval)
-    }
+    return () => window.removeEventListener("dataUpdated", handleDataUpdate as EventListener)
   }, [])
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-8">

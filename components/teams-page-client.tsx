@@ -15,43 +15,50 @@ interface Team {
   crestUrl?: string
   createdAt: string
 }
+export default function TeamsPageClient() {
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [isLoading, setIsLoading] = useState(true)
 
-interface TeamsPageClientProps {
-  initialTeams: Team[]
-}
-
-export default function TeamsPageClient({ initialTeams }: TeamsPageClientProps) {
-  const [teams, setTeams] = useState(initialTeams)
-
-  const fetchTeams = async () => {
+    const fetchAllData = async () => {
     try {
-      const response = await fetch("/api/teams")
-      if (response.ok) {
-        const updatedTeams = await response.json()
-        setTeams(updatedTeams)
+      setIsLoading(true)
+      const [teamsRes] = await Promise.all([
+        fetch("/api/teams"),
+      ])
+
+      if (teamsRes.ok ) {
+        const [teamsData] = await Promise.all([
+          teamsRes.json(),
+        ])
+        setTeams(teamsData)
       }
     } catch (error) {
-      console.error("Failed to fetch teams:", error)
+      console.error("Failed to fetch data:", error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
   useEffect(() => {
+    fetchAllData()
+
     const handleDataUpdate = (event: CustomEvent) => {
       if (event.detail.type === "team") {
-        fetchTeams()
+        fetchAllData()
       }
     }
 
     window.addEventListener("dataUpdated", handleDataUpdate as EventListener)
-
-    // Set up periodic refresh every 30 seconds
-    const interval = setInterval(fetchTeams, 30000)
-
-    return () => {
-      window.removeEventListener("dataUpdated", handleDataUpdate as EventListener)
-      clearInterval(interval)
-    }
+    return () => window.removeEventListener("dataUpdated", handleDataUpdate as EventListener)
   }, [])
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-8">

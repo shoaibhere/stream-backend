@@ -2,14 +2,13 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Plus, Pencil, Trash2, Tv, Radio, Search, Filter } from "lucide-react"
+import { Plus, Pencil, Trash2, Tv, Radio } from "lucide-react"
 import Image from "next/image"
 import MatchDialog from "@/components/match-dialog"
 import DeleteMatchDialog from "@/components/delete-match-dialog"
 import ToggleLiveStatus from "@/components/toggle-live-status"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
 
 interface Team {
   _id: string
@@ -34,45 +33,61 @@ interface Match {
   createdAt: string
 }
 
-interface MatchesPageClientProps {
-  initialMatches: Match[]
-  teams: Team[]
-  channels: Channel[]
-}
+export default function MatchesPageClient() {
+  const [matches, setMatches] = useState<Match[]>([])
+  const [teams, setTeams] = useState<Team[]>([])
+  const [channels, setChannels] = useState<Channel[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
-export default function MatchesPageClient({ initialMatches, teams, channels }: MatchesPageClientProps) {
-  const [matches, setMatches] = useState(initialMatches)
-
-  const fetchMatches = async () => {
+  const fetchAllData = async () => {
     try {
-      const response = await fetch("/api/matches")
-      if (response.ok) {
-        const updatedMatches = await response.json()
-        setMatches(updatedMatches)
+      setIsLoading(true)
+      const [matchesRes, teamsRes, channelsRes] = await Promise.all([
+        fetch("/api/matches"),
+        fetch("/api/teams"),
+        fetch("/api/channels")
+      ])
+
+      if (matchesRes.ok && teamsRes.ok && channelsRes.ok) {
+        const [matchesData, teamsData, channelsData] = await Promise.all([
+          matchesRes.json(),
+          teamsRes.json(),
+          channelsRes.json()
+        ])
+        setMatches(matchesData)
+        setTeams(teamsData)
+        setChannels(channelsData)
       }
     } catch (error) {
-      console.error("Failed to fetch matches:", error)
+      console.error("Failed to fetch data:", error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
   useEffect(() => {
+    fetchAllData()
+
     const handleDataUpdate = (event: CustomEvent) => {
-      if (event.detail.type === "match") {
-        fetchMatches()
+      if (event.detail.type === "match" || 
+          event.detail.type === "team" || 
+          event.detail.type === "channel") {
+        fetchAllData()
       }
     }
 
     window.addEventListener("dataUpdated", handleDataUpdate as EventListener)
-
-    // Set up periodic refresh every 30 seconds
-    const interval = setInterval(fetchMatches, 30000)
-
-    return () => {
-      window.removeEventListener("dataUpdated", handleDataUpdate as EventListener)
-      clearInterval(interval)
-    }
+    return () => window.removeEventListener("dataUpdated", handleDataUpdate as EventListener)
   }, [])
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    )
+  }
+  
   return (
     <div className="space-y-8">
       {/* Header */}
