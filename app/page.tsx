@@ -118,6 +118,15 @@ const Index = () => {
                 📱 Download APK
               </a>
             </Button>
+            <Button
+              asChild
+              size="lg"
+              className="bg-green-500 hover:bg-green-600 text-white px-12 py-6 text-xl font-bold rounded-full shadow-2xl transform hover:scale-105 transition-all duration-300"
+            >
+              <a href="/login" download>
+                  Login as Admin
+              </a>
+            </Button>
           </div>
         </div>
 
