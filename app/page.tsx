@@ -94,7 +94,7 @@ const Index = () => {
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="relative container mx-auto px-4 py-20 text-center">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto mb-5">
             <Badge className="mb-6 bg-white/20 text-white hover:bg-white/30 text-lg px-6 py-2">
               ⚽ The Ultimate Football Experience
             </Badge>
@@ -118,16 +118,13 @@ const Index = () => {
                 📱 Download APK
               </a>
             </Button>
-            <Button
-              asChild
-              size="lg"
-              className="bg-green-500 hover:bg-green-600 text-white px-12 py-6 text-xl font-bold rounded-full shadow-2xl transform hover:scale-105 transition-all duration-300"
-            >
-              <a href="/login" download>
-                  Login as Admin
-              </a>
-            </Button>
           </div>
+            <Link
+                href="/login"
+                className="bg-white hover:bg-green-200 text-green-500 px-12 py-3 text-xl font-bold rounded-full shadow-2xl transform hover:scale-105 transition-all duration-300"
+              >
+                Admin Login
+              </Link>
         </div>
 
         {/* Floating Football Icons */}
