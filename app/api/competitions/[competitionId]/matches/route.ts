@@ -13,7 +13,7 @@ export async function GET(
     const db = client.db();
 
     const query: any = {
-      "competition.id": parseInt(competitionId),
+      "competitionCode": competitionId,
     };
 
     if (status) {
