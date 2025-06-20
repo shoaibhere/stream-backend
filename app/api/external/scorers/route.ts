@@ -8,12 +8,11 @@ export async function GET() {
   try {
     const client = await clientPromise;
     const db = client.db();
-
-    const competitions = await db.collection("competitions").find().toArray();
+    const comps = ["PL","PD","WC","SA","BL1","FL1","CL"]
     const allScorers = [];
 
-    for (const comp of competitions) {
-      const res = await fetch(`${baseUrl}/competitions/${comp.code}/scorers`, {
+    for (const comp of comps) {
+      const res = await fetch(`${baseUrl}/competitions/${comp}/scorers`, {
         headers: { 'X-Auth-Token': apiKey },
       });
 
@@ -22,7 +21,7 @@ export async function GET() {
       const data = await res.json();
       const scorers = data.scorers?.map((s: any) => ({
         ...s,
-        competitionCode: comp.code,
+        competitionCode: comp,
         fetchedAt: new Date(),
       })) || [];
 
