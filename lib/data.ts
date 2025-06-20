@@ -10,6 +10,22 @@ export async function getTeams() {
   return JSON.parse(JSON.stringify(teams))
 }
 
+export async function getNews() {
+  const client = await clientPromise
+  const db = client.db()
+
+  const news = await db.collection("news").find({}).sort({ name: 1 }).toArray()
+  return JSON.parse(JSON.stringify(news))
+}
+
+export async function getTopNews() {
+  const client = await clientPromise
+  const db = client.db()
+
+  const top_news = await db.collection("top-news").find({}).sort({ name: 1 }).toArray()
+  return JSON.parse(JSON.stringify(top_news))
+}
+
 export async function getTeamsCount() {
   const client = await clientPromise
   const db = client.db()
