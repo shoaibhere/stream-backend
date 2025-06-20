@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Database, Newspaper } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-export default function FetchMatchesButton() {
+export default function FetchStandingsButton() {
   const [fetching, setFetching] = useState(false);
   const [alert, setAlert] = useState<null | {
     type: "success" | "error";
@@ -28,21 +28,21 @@ export default function FetchMatchesButton() {
     setAlert({
       type: "success",
       title: "Fetching...",
-      description: "Getting latest football matches...",
+      description: "Getting latest football Standings...",
     });
 
     try {
-      const res = await fetch("/api/external/matches");
+      const res = await fetch("/api/external/standings");
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || "Failed to fetch Matches");
+        throw new Error(data.message || "Failed to fetch Standings");
       }
 
       setAlert({
         type: "success",
         title: "Success!",
-        description: `Matches saved.`,
+        description: `Standings saved.`,
       });
     } catch (err: any) {
       setAlert({
@@ -61,10 +61,10 @@ export default function FetchMatchesButton() {
         onClick={handleClick}
         disabled={fetching}
         variant="outline"
-        className="bg-purple-500 border-none hover:bg-purple-600 justify-start h-12 w-full sm:w-auto"
+        className="bg-lime-500 border-none hover:bg-lime-600 justify-start h-12 w-full sm:w-auto"
       >
         <Database className="h-5 w-5 mr-3" />
-        {fetching ? "Fetching..." : "Fetch Matches"}
+        {fetching ? "Fetching..." : "Fetch Standings"}
       </Button>
 
       {alert && (

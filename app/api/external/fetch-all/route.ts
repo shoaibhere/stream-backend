@@ -1,41 +1,39 @@
 import { NextResponse } from "next/server";
-import clientPromise from "@/lib/mongodb";
 
 const base = `https://kickstronaut.up.railway.app/api/external`;
+const endpoints = ["competitions", "matches", "standings", "scorers"];
+
+function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 export async function GET() {
   try {
-    const client = await clientPromise;
-    const db = client.db();
-
-    const endpoints = ["competitions", "matches", "standings", "scorers"];
     const summary: any[] = [];
 
-    for (const endpoint of endpoints) {
+    for (let i = 0; i < endpoints.length; i++) {
+      const endpoint = endpoints[i];
+
       try {
         const res = await fetch(`${base}/${endpoint}`);
-        if (!res.ok) throw new Error(`Failed to fetch ${endpoint}`);
-
-        const data = await res.json();
-
-        // Store in corresponding collection (same name as endpoint)
-        await db.collection(endpoint).deleteMany({});
-        const result = await db.collection(endpoint).insertMany(data);
+        const json = await res.json();
 
         summary.push({
           endpoint,
           status: "fulfilled",
-          insertedCount: result.insertedCount,
+          result: json,
         });
       } catch (err: any) {
         summary.push({
           endpoint,
           status: "rejected",
-          error: err?.message || "Unknown error",
+          result: err?.message || "Failed",
         });
+      }
 
-        // OPTIONAL: Stop loop if any fetch fails
-        // break;
+      // Wait 6 seconds every 2 calls, except after last one
+      if ((i + 1) % 2 === 0 && i !== endpoints.length - 1) {
+        await sleep(6000);
       }
     }
 

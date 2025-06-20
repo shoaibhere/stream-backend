@@ -18,6 +18,9 @@ import {
 } from "@/lib/data";
 import FetchArticlesButton from "@/components/fetch-articles-button";
 import FetchMatchesButton from "@/components/fetch-matches-button";
+import FetchCompetitionsButton from "@/components/fetch-competitions-button";
+import FetchStandingsButton from "@/components/fetch-standings-button";
+import FetchScorersButton from "@/components/fetch-scorers-button";
 
 export default async function Dashboard() {
   const teamsCount = await getTeamsCount();
@@ -169,7 +172,9 @@ export default async function Dashboard() {
                   </Link>
                 </Button>
                 <FetchMatchesButton/>
-
+                <FetchCompetitionsButton/>
+                <FetchStandingsButton/>
+                <FetchScorersButton/>
                 <FetchArticlesButton/>
               </div>
             </CardContent>
