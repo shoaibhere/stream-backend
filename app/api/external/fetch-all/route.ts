@@ -4,24 +4,27 @@ export async function GET() {
   try {
     const base = `https://kickstronaut.up.railway.app/api/external`;
 
-    const endpoints = [
-      "competitions",
-      "matches",
-      "standings",
-      "scorers",
-    ];
+    const endpoints = ["competitions", "matches", "standings", "scorers"];
+    const summary: any[] = [];
 
-    const results = await Promise.allSettled(
-      endpoints.map((e) =>
-        fetch(`${base}/${e}`).then((res) => res.json())
-      )
-    );
+    for (const endpoint of endpoints) {
+      try {
+        const res = await fetch(`${base}/${endpoint}`);
+        const json = await res.json();
 
-    const summary = results.map((r, i) => ({
-      endpoint: endpoints[i],
-      status: r.status,
-      result: r.status === "fulfilled" ? r.value : (r.reason?.message || "Failed"),
-    }));
+        summary.push({
+          endpoint,
+          status: "fulfilled",
+          result: json,
+        });
+      } catch (err: any) {
+        summary.push({
+          endpoint,
+          status: "rejected",
+          result: err?.message || "Failed",
+        });
+      }
+    }
 
     return NextResponse.json({ success: true, summary });
   } catch (err: any) {
