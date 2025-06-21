@@ -81,7 +81,7 @@ export default async function Dashboard() {
       value: adsCount,
       description: "Currently Configured",
       icon: TvMinimalPlayIcon,
-      color: "text-red-600",
+      color: "text-fuchsia-600",
       bgColor: "bg-gray-100",
       href: "/dashboard/ads",
     },
