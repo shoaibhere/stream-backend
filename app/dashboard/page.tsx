@@ -16,6 +16,7 @@ import {
   getMatchesCount,
   getLiveMatches,
   getChannelsCount,
+  getAds,
   getAdsCount,
 } from "@/lib/data";
 import MyWebsiteButton from "@/components/my-website-button";
@@ -31,9 +32,10 @@ import MyTeamsButton from "@/components/my-teams-button";
 
 export default async function Dashboard() {
   const teamsCount = await getTeamsCount();
+  const ads = await getAds();
   const matchesCount = await getMatchesCount();
   const channelsCount = await getChannelsCount();
-  const adsCount = await getAdsCount();
+  const adsCount = ads.length;
   const liveMatches = await getLiveMatches();
   const liveMatchesCount = liveMatches.length;
 
