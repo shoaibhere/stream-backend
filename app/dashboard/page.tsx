@@ -139,6 +139,12 @@ export default async function Dashboard() {
       <MyMatchesButton className="w-full h-16 text-sm font-medium" />
       <MyAdsButton className="w-full h-16 text-sm font-medium" />
       <MyWebsiteButton className="w-full h-16 text-sm font-medium" />
+    </div>
+
+      <CardTitle className="text-xl font-semibold text-gray-900">
+      Fetch Data From API
+      </CardTitle>
+    <div className="grid gap-4 sm:grid-cols-5">
       <FetchMatchesButton className="w-full h-16 text-sm font-medium" />
       <FetchCompetitionsButton className="w-full h-16 text-sm font-medium" />
       <FetchStandingsButton className="w-full h-16 text-sm font-medium" />
