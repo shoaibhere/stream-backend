@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Database, Newspaper } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-export default function FetchScorersButton() {
+export default function FetchScorersButton({ className }: { className?: string }) {
   const [fetching, setFetching] = useState(false);
   const [alert, setAlert] = useState<null | {
     type: "success" | "error";
@@ -61,7 +61,8 @@ export default function FetchScorersButton() {
         onClick={handleClick}
         disabled={fetching}
         variant="outline"
-        className="bg-emerald-500 border-none hover:bg-emerald-600 justify-start h-12 w-full sm:w-auto"
+        className={`bg-emerald-500 border-none hover:bg-emerald-600 
+           ${className}`}
       >
         <Database className="h-5 w-5 mr-3" />
         {fetching ? "Fetching..." : "Fetch Scorers"}

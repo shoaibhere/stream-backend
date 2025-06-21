@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Newspaper } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-export default function FetchArticlesButton() {
+export default function FetchArticlesButton({ className }: { className?: string }) {
   const [fetching, setFetching] = useState(false);
   const [alert, setAlert] = useState<null | {
     type: "success" | "error";
@@ -61,7 +61,7 @@ export default function FetchArticlesButton() {
         onClick={handleClick}
         disabled={fetching}
         variant="outline"
-        className="bg-pink-500 border-none hover:bg-pink-600 justify-start h-12 w-full sm:w-auto"
+        className={`bg-pink-500 border-none hover:bg-pink-600 ${className}`}
       >
         <Newspaper className="h-5 w-5 mr-3" />
         {fetching ? "Fetching..." : "Fetch Articles"}

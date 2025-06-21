@@ -6,6 +6,7 @@ import {
   Play,
   Database,
   ArrowRight,
+  TvMinimalPlayIcon,
   Radio,
 } from "lucide-react";
 import Link from "next/link";
@@ -15,17 +16,23 @@ import {
   getMatchesCount,
   getLiveMatches,
   getChannelsCount,
+  getAdsCount,
 } from "@/lib/data";
 import FetchArticlesButton from "@/components/fetch-articles-button";
 import FetchMatchesButton from "@/components/fetch-matches-button";
 import FetchCompetitionsButton from "@/components/fetch-competitions-button";
 import FetchStandingsButton from "@/components/fetch-standings-button";
 import FetchScorersButton from "@/components/fetch-scorers-button";
+import MyChannelsButton from "@/components/my-channels-button";
+import MyMatchesButton from "@/components/my-matches-button";
+import MyAdsButton from "@/components/my-ads-button";
+import MyTeamsButton from "@/components/my-teams-button";
 
 export default async function Dashboard() {
   const teamsCount = await getTeamsCount();
   const matchesCount = await getMatchesCount();
   const channelsCount = await getChannelsCount();
+  const adsCount = await getAdsCount();
   const liveMatches = await getLiveMatches();
   const liveMatchesCount = liveMatches.length;
 
@@ -38,7 +45,6 @@ export default async function Dashboard() {
       color: "text-blue-600",
       bgColor: "bg-gray-100",
       href: "/dashboard/teams",
-      change: "+12%",
     },
     {
       title: "Total Channels",
@@ -48,7 +54,6 @@ export default async function Dashboard() {
       color: "text-purple-600",
       bgColor: "bg-gray-100",
       href: "/dashboard/channels",
-      change: "+5%",
     },
     {
       title: "Total Matches",
@@ -58,7 +63,6 @@ export default async function Dashboard() {
       color: "text-emerald-600",
       bgColor: "bg-gray-100",
       href: "/dashboard/matches",
-      change: "+8%",
     },
     {
       title: "Live Matches",
@@ -68,7 +72,15 @@ export default async function Dashboard() {
       color: "text-red-600",
       bgColor: "bg-gray-100",
       href: "/dashboard/matches",
-      change: "Live",
+    },
+    {
+      title: "Ads Configured",
+      value: adsCount,
+      description: "Currently Configured",
+      icon: TvMinimalPlayIcon,
+      color: "text-red-600",
+      bgColor: "bg-gray-100",
+      href: "/dashboard/ads",
     },
   ];
 
@@ -84,7 +96,7 @@ export default async function Dashboard() {
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
           {stats.map((stat) => (
             <Card
               key={stat.title}
@@ -107,145 +119,34 @@ export default async function Dashboard() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <p className="text-sm text-gray-500">{stat.description}</p>
-                <div className="flex items-center justify-between">
-                  <span
-                    className={`text-xs font-medium px-2 py-1 rounded-full ${
-                      stat.change === "Live"
-                        ? "bg-red-100 text-red-700"
-                        : "bg-gray-100 text-gray-700"
-                    }`}
-                  >
-                    {stat.change}
-                  </span>
-                  <Button
-                    asChild
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0"
-                  >
-                    <Link href={stat.href}>
-                      <ArrowRight className="h-4 w-4" />
-                    </Link>
-                  </Button>
-                </div>
               </CardContent>
             </Card>
           ))}
         </div>
 
         <div className="grid gap-6 lg:grid-cols-3">
-          <Card className="bg-white lg:col-span-2">
-            <CardHeader>
-              <CardTitle className="text-xl font-semibold text-gray-900">
-                Quick Actions
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-4 sm:grid-cols-3">
-                <Button
-                  asChild
-                  className="text-white bg-yellow-600 border-none hover:bg-yellow-500 justify-start h-12"
-                >
-                  <Link href="/dashboard/teams">
-                    <Users className="h-5 w-5 mr-3" />
-                    My Teams
-                  </Link>
-                </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  className="bg-green-500 border-none hover:bg-green-600 justify-start h-12"
-                >
-                  <Link href="/dashboard/channels">
-                    <Radio className="h-5 w-5 mr-3" />
-                    My Channels
-                  </Link>
-                </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  className="bg-blue-500 border-none hover:bg-blue-600 justify-start h-12"
-                >
-                  <Link href="/dashboard/matches">
-                    <Tv className="h-5 w-5 mr-3" />
-                    My Matches
-                  </Link>
-                </Button>
-                <FetchMatchesButton/>
-                <FetchCompetitionsButton/>
-                <FetchStandingsButton/>
-                <FetchScorersButton/>
-                <FetchArticlesButton/>
-              </div>
-            </CardContent>
-          </Card>
+        <Card className="bg-white lg:col-span-3">
+  <CardHeader>
+    <CardTitle className="text-xl font-semibold text-gray-900">
+      Quick Actions
+    </CardTitle>
+  </CardHeader>
+  <CardContent className="space-y-4">
+    <div className="grid gap-4 sm:grid-cols-5">
+      <MyTeamsButton className="w-full h-16 text-sm font-medium" />
+      <MyChannelsButton className="w-full h-16 text-sm font-medium" />
+      <MyMatchesButton className="w-full h-16 text-sm font-medium" />
+      <MyAdsButton className="w-full h-16 text-sm font-medium" />
+      <FetchMatchesButton className="w-full h-16 text-sm font-medium" />
+      <FetchCompetitionsButton className="w-full h-16 text-sm font-medium" />
+      <FetchStandingsButton className="w-full h-16 text-sm font-medium" />
+      <FetchScorersButton className="w-full h-16 text-sm font-medium" />
+      <FetchArticlesButton className="w-full h-16 text-sm font-medium" />
+    </div>
+  </CardContent>
+</Card>
 
-          <Card className="bg-white">
-            <CardHeader>
-              <CardTitle className="text-xl font-semibold text-gray-900">
-                System Status
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-3 text-sm text-gray-600">
-                <div className="flex items-center justify-between">
-                  <span>Database</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    <span className="font-medium text-green-600">Online</span>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span>Cloudinary CDN</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    <span className="font-medium text-green-600">Active</span>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span>Channels</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    <span className="font-medium text-green-600">
-                      {channelsCount} Active
-                    </span>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span>Live Streams</span>
-                  <div className="flex items-center gap-2">
-                    <div
-                      className={`w-2 h-2 rounded-full ${
-                        liveMatchesCount > 0
-                          ? "bg-green-500 animate-pulse"
-                          : "bg-yellow-500"
-                      }`}
-                    ></div>
-                    <span
-                      className={`font-medium ${
-                        liveMatchesCount > 0
-                          ? "text-green-600"
-                          : "text-yellow-600"
-                      }`}
-                    >
-                      {liveMatchesCount > 0
-                        ? `${liveMatchesCount} Active`
-                        : "None Active"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-4 border-t border-gray-100">
-                <div className="text-sm text-gray-600 mb-2">Server Load</div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-green-500 h-2 rounded-full w-3/4"></div>
-                </div>
-                <div className="text-xs text-gray-500 mt-1">75% - Optimal</div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+</div>
       </div>
     </DashboardLayout>
   );

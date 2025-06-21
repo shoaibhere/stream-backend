@@ -16,7 +16,7 @@ import {
   SidebarMenuButton,
   SidebarInset,
 } from "@/components/ui/sidebar"
-import { Shield, Users, Tv, LogOut, BarChart3, Radio } from "lucide-react"
+import { Shield, Users, Tv,TvMinimalPlayIcon, LogOut, BarChart3, Radio } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -52,6 +52,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: "Teams", href: "/dashboard/teams", icon: Users },
     { name: "Channels", href: "/dashboard/channels", icon: Radio },
     { name: "Live Matches", href: "/dashboard/matches", icon: Tv },
+    { name: "Ads", href: "/dashboard/ads", icon: TvMinimalPlayIcon },
   ]
 
   if (!mounted) return null

@@ -10,6 +10,21 @@ export async function getTeams() {
   return JSON.parse(JSON.stringify(teams))
 }
 
+export async function getAds() {
+  const client = await clientPromise
+  const db = client.db()
+
+  const ads = await db.collection("ads").find({}).sort({ name: 1 }).toArray()
+  return JSON.parse(JSON.stringify(ads))
+}
+
+export async function getAdsCount() {
+  const client = await clientPromise
+  const db = client.db()
+
+  return await db.collection("ads").countDocuments()
+}
+
 export async function getNews() {
   const client = await clientPromise
   const db = client.db()
