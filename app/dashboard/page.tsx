@@ -29,6 +29,7 @@ import MyChannelsButton from "@/components/my-channels-button";
 import MyMatchesButton from "@/components/my-matches-button";
 import MyAdsButton from "@/components/my-ads-button";
 import MyTeamsButton from "@/components/my-teams-button";
+import DynamicStats from "@/components/dynamic-stats";
 
 export default async function Dashboard() {
   const teamsCount = await getTeamsCount();
@@ -100,31 +101,7 @@ export default async function Dashboard() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
-          {stats.map((stat) => (
-            <Card
-              key={stat.title}
-              className="bg-white hover:shadow-md transition-all duration-300 group"
-            >
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                <div className="space-y-1">
-                  <CardTitle className="text-sm font-medium text-gray-500">
-                    {stat.title}
-                  </CardTitle>
-                  <div className="text-2xl font-bold text-gray-900">
-                    {stat.value}
-                  </div>
-                </div>
-                <div
-                  className={`p-3 rounded-xl ${stat.bgColor} group-hover:scale-105 transition-transform duration-200`}
-                >
-                  <stat.icon className={`h-6 w-6 ${stat.color}`} />
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <p className="text-sm text-gray-500">{stat.description}</p>
-              </CardContent>
-            </Card>
-          ))}
+          <DynamicStats/>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-3">
