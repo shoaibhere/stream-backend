@@ -18,6 +18,7 @@ import {
   getChannelsCount,
   getAdsCount,
 } from "@/lib/data";
+import MyWebsiteButton from "@/components/my-website-button";
 import FetchArticlesButton from "@/components/fetch-articles-button";
 import FetchMatchesButton from "@/components/fetch-matches-button";
 import FetchCompetitionsButton from "@/components/fetch-competitions-button";
@@ -137,6 +138,7 @@ export default async function Dashboard() {
       <MyChannelsButton className="w-full h-16 text-sm font-medium" />
       <MyMatchesButton className="w-full h-16 text-sm font-medium" />
       <MyAdsButton className="w-full h-16 text-sm font-medium" />
+      <MyWebsiteButton className="w-full h-16 text-sm font-medium" />
       <FetchMatchesButton className="w-full h-16 text-sm font-medium" />
       <FetchCompetitionsButton className="w-full h-16 text-sm font-medium" />
       <FetchStandingsButton className="w-full h-16 text-sm font-medium" />
