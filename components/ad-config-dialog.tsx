@@ -45,10 +45,9 @@ interface ScreenAdConfigDialogProps {
 
 const SCREEN_TYPES = [
   { value: "home", label: "Home Screen" },
-  { value: "liveStream", label: "Settings" },
-  { value: "leagueScreen", label: "Leagues Screen" },
-  { value: "createMatch", label: "Quick Match" },
-  { value: "setupMatch", label: "Match Setup" },
+  { value: "leagues", label: "Leagues Screen" },
+  { value: "create_match", label: "Quick Match" },
+  { value: "setup_match", label: "Match Setup" },
   { value: "articles", label: "Articles" },
 ]
 

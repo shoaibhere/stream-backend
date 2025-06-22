@@ -28,12 +28,6 @@ interface ScreenAdConfig {
   updatedAt: string
 }
 
-const SCREEN_GROUPS = {
-  main: { label: "Main Screens", screens: ["home", "leagueScreen", "createMatch", "setupMatch"] },
-  player: { label: "Player & Media", screens: ["liveStream"] },
-  other: { label: "Other Screens", screens: ["articles"] },
-}
-
 export default function AdsPageClient() {
   const [adConfigs, setAdConfigs] = useState<ScreenAdConfig[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -115,7 +109,6 @@ export default function AdsPageClient() {
       : adConfigs.filter((config) => {
           if (activeTab === "enabled") return config.adsEnabled
           if (activeTab === "disabled") return !config.adsEnabled
-          return SCREEN_GROUPS[activeTab as keyof typeof SCREEN_GROUPS]?.screens.includes(config.screenType)
         })
 
   return (
@@ -138,13 +131,10 @@ export default function AdsPageClient() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="all">All ({adConfigs.length})</TabsTrigger>
           <TabsTrigger value="enabled">Enabled ({adConfigs.filter((c) => c.adsEnabled).length})</TabsTrigger>
           <TabsTrigger value="disabled">Disabled ({adConfigs.filter((c) => !c.adsEnabled).length})</TabsTrigger>
-          <TabsTrigger value="main">Main</TabsTrigger>
-          <TabsTrigger value="player">Player</TabsTrigger>
-          <TabsTrigger value="other">Other</TabsTrigger>
         </TabsList>
 
         <TabsContent value={activeTab} className="space-y-6">

@@ -1,6 +1,8 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { ObjectId } from "mongodb"
-import clientPromise from "@/lib/mongodb"
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import { ObjectId } from "mongodb";
+import clientPromise from "@/lib/mongodb";
+import type { ScreenAdConfig } from "@/types/ads"; // Import the shared type
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -28,80 +30,95 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const id = params.id
+    const id = params.id;
 
     if (!ObjectId.isValid(id)) {
-      return NextResponse.json({ message: "Invalid ad configuration ID" }, { status: 400 })
+      return NextResponse.json({ message: "Invalid ad configuration ID" }, { status: 400 });
     }
 
-    const data = await request.json()
-    const { 
-      adsEnabled, 
-      useAdMob, 
-      useStartApp, 
-      adMobAppId, 
-      adMobInterstitialId, 
-      startAppAppId, 
-      adFrequency 
-    } = data
+    const data: Partial<ScreenAdConfig> = await request.json();
+    
+    // Remove protected fields
+    delete data._id;
+    delete data.createdAt;
+    
+    // Set updatedAt
+    data.updatedAt = new Date().toISOString();
 
-    if (typeof adsEnabled !== "boolean") {
-      return NextResponse.json({ message: "adsEnabled must be a boolean" }, { status: 400 })
+    // Validate required fields
+    if (!data.screenType || !data.screenName || !data.adType) {
+      return NextResponse.json({ message: "Missing required fields" }, { status: 400 });
     }
 
-    if (adsEnabled) {
-      if (!useAdMob && !useStartApp) {
-        return NextResponse.json({ message: "Either AdMob or StartApp must be enabled when ads are enabled" }, { status: 400 })
+    // Enhanced validation
+    if (data.adsEnabled) {
+      if (!data.useAdMob && !data.useStartApp) {
+        return NextResponse.json(
+          { message: "Select at least one ad provider" },
+          { status: 400 }
+        );
       }
 
-      if (useAdMob && useStartApp) {
-        return NextResponse.json({ message: "Only one ad provider can be enabled at a time" }, { status: 400 })
+      if (data.useAdMob) {
+        if (!data.adMobAppId) {
+          return NextResponse.json(
+            { message: "AdMob App ID is required" },
+            { status: 400 }
+          );
+        }
+        // Ad-type specific validation
+        if (data.adType === "banner" && !data.adMobBannerId) {
+          return NextResponse.json(
+            { message: "Banner ID required for banner ads" },
+            { status: 400 }
+          );
+        }
+        if (data.adType === "interstitial" && !data.adMobInterstitialId) {
+          return NextResponse.json(
+            { message: "Interstitial ID required for interstitial ads" },
+            { status: 400 }
+          );
+        }
+        if (data.adType === "rewarded" && !data.adMobRewardedId) {
+          return NextResponse.json(
+            { message: "Rewarded ID required for rewarded ads" },
+            { status: 400 }
+          );
+        }
       }
 
-      if (useAdMob && (!adMobAppId || !adMobInterstitialId)) {
-        return NextResponse.json({ message: "AdMob App ID and Interstitial ID are required when AdMob is enabled" }, { status: 400 })
+      if (data.useStartApp && !data.startAppAppId) {
+        return NextResponse.json(
+          { message: "StartApp App ID is required" },
+          { status: 400 }
+        );
       }
 
-      if (useStartApp && !startAppAppId) {
-        return NextResponse.json({ message: "StartApp App ID is required when StartApp is enabled" }, { status: 400 })
-      }
-
-      if (!adFrequency || adFrequency < 1) {
-        return NextResponse.json({ message: "Ad frequency must be at least 1" }, { status: 400 })
+      if ((data.adType === "interstitial" || data.adType === "rewarded") && 
+          (!data.adFrequency || data.adFrequency < 1)) {
+        return NextResponse.json(
+          { message: "Valid ad frequency required" },
+          { status: 400 }
+        );
       }
     }
 
-    const client = await clientPromise
-    const db = client.db()
+    const client = await clientPromise;
+    const db = client.db();
 
-    // Check if ad configuration exists
-    const existingAd = await db.collection("ads").findOne({ _id: new ObjectId(id) })
-    if (!existingAd) {
-      return NextResponse.json({ message: "Ad configuration not found" }, { status: 404 })
-    }
-
-    // Update ad configuration in database
+    // Update all fields
     await db.collection("ads").updateOne(
       { _id: new ObjectId(id) },
-      {
-        $set: {
-          active: adsEnabled,
-          adsEnabled,
-          useAdMob: adsEnabled ? useAdMob : false,
-          useStartApp: adsEnabled ? useStartApp : false,
-          adMobAppId: adMobAppId || "",
-          adMobInterstitialId: adMobInterstitialId || "",
-          startAppAppId: startAppAppId || "",
-          adFrequency: adFrequency || 3,
-          updatedAt: new Date(),
-        },
-      }
-    )
+      { $set: data }
+    );
 
-    return NextResponse.json({ message: "Ad configuration updated successfully" })
+    return NextResponse.json({ message: "Configuration updated successfully" });
   } catch (error) {
-    console.error("Error updating ad configuration:", error)
-    return NextResponse.json({ message: "Failed to update ad configuration" }, { status: 500 })
+    console.error("Error updating configuration:", error);
+    return NextResponse.json(
+      { message: "Failed to update configuration" },
+      { status: 500 }
+    );
   }
 }
 
