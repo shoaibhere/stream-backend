@@ -16,7 +16,7 @@ import {
   SidebarMenuButton,
   SidebarInset,
 } from "@/components/ui/sidebar"
-import { Shield, Users, Tv,TvMinimalPlayIcon, LogOut, BarChart3, Radio } from "lucide-react"
+import { Shield, Users, Tv, Megaphone ,TvMinimalPlayIcon, LogOut, BarChart3, Radio } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -53,6 +53,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: "Channels", href: "/dashboard/channels", icon: Radio },
     { name: "Live Matches", href: "/dashboard/matches", icon: Tv },
     { name: "Ads", href: "/dashboard/ads", icon: TvMinimalPlayIcon },
+    { name: "Notification Campaigns", href: "/dashboard/campaigns", icon: Megaphone },
   ]
 
   if (!mounted) return null
@@ -110,7 +111,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         <SidebarInset className="flex-1">
           {/* Mobile Top Nav */}
-          <nav className="lg:hidden flex items-center justify-around gap-1 px-2 py-3 border-b border-gray-200 bg-white shadow-sm">
+          <nav className="lg:hidden bottom-0 flex items-center justify-between gap-1 px-2 py-3 border-b border-gray-200 bg-white shadow-sm">
             {navItems.map((item) => (
               <Link
                 key={item.name}
@@ -122,7 +123,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 }`}
               >
                 <item.icon className="h-5 w-5 mb-1" />
-                {item.name}
               </Link>
             ))}
           </nav>

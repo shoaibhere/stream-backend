@@ -112,3 +112,11 @@ export async function getLiveMatches() {
 
   return JSON.parse(JSON.stringify(matches))
 }
+export async function getNotificationCampaigns() {
+  const client = await clientPromise
+  const db = client.db()
+
+  const campaigns = await db.collection("campaigns").find().toArray()
+
+  return JSON.parse(JSON.stringify(campaigns))
+}

@@ -34,13 +34,13 @@ export default function DynamicStats() {
       href: "/dashboard/channels",
     },
     {
-      title: "Total Matches",
-      value: data?.matchesCount || 0,
-      description: "Configured match streams",
+      title: "Notification Campaigns",
+      value: data?.campaignCount || 0,
+      description: "Configured notification Campaigns",
       icon: Tv,
       color: "text-emerald-600",
       bgColor: "bg-gray-100",
-      href: "/dashboard/matches",
+      href: "/dashboard/campaigns",
     },
     {
       title: "Live Matches",

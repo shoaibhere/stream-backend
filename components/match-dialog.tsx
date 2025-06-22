@@ -1,22 +1,22 @@
-"use client";
+"use client"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from "@/components/ui/popover"
 import {
   Command,
   CommandInput,
   CommandEmpty,
   CommandGroup,
   CommandItem,
-} from "@/components/ui/command";
-import { Check, ChevronsUpDown } from "lucide-react";
-import { cn } from "@/lib/utils";
-import type React from "react";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
+} from "@/components/ui/command"
+import { Check, ChevronsUpDown } from "lucide-react"
+import { cn } from "@/lib/utils"
+import type React from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -25,31 +25,31 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/components/ui/use-toast";
-import { Loader2, Radio } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
-import { Checkbox } from "@/components/ui/checkbox";
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { useToast } from "@/components/ui/use-toast"
+import { Loader2, Radio } from "lucide-react"
+import { Switch } from "@/components/ui/switch"
+import { Checkbox } from "@/components/ui/checkbox"
 
 interface Team {
-  _id: string;
-  name: string;
-  crestUrl?: string;
+  _id: string
+  name: string
+  crestUrl?: string
 }
 
 interface Channel {
-  _id: string;
-  name: string;
-  m3u8Url: string;
-  headers?: Array<{ name: string; value: string }>;
+  _id: string
+  name: string
+  m3u8Url: string
+  headers?: Array<{ name: string; value: string }>
 }
 
 interface MatchDialogProps {
-  children: React.ReactNode;
-  matchId?: string;
-  teams: Team[];
+  children: React.ReactNode
+  matchId?: string
+  teams: Team[]
 }
 
 export default function MatchDialog({
@@ -57,80 +57,80 @@ export default function MatchDialog({
   matchId,
   teams,
 }: MatchDialogProps) {
-  const [open, setOpen] = useState(false);
-  const [title, setTitle] = useState("");
-  const [team1Id, setTeam1Id] = useState("");
-  const [team2Id, setTeam2Id] = useState("");
-  const [channelIds, setChannelIds] = useState<string[]>([]);
-  const [isLive, setIsLive] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingMatch, setIsLoadingMatch] = useState(false);
-  const [channels, setChannels] = useState<Channel[]>([]);
+  const [open, setOpen] = useState(false)
+  const [title, setTitle] = useState("")
+  const [team1Id, setTeam1Id] = useState("")
+  const [team2Id, setTeam2Id] = useState("")
+  const [channelIds, setChannelIds] = useState<string[]>([])
+  const [isLive, setIsLive] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [isLoadingMatch, setIsLoadingMatch] = useState(false)
+  const [channels, setChannels] = useState<Channel[]>([])
   
   // Separate states for team selection popovers
-  const [openTeam1, setOpenTeam1] = useState(false);
-  const [openTeam2, setOpenTeam2] = useState(false);
-  const [teamSearch1, setTeamSearch1] = useState("");
-  const [teamSearch2, setTeamSearch2] = useState("");
+  const [openTeam1, setOpenTeam1] = useState(false)
+  const [openTeam2, setOpenTeam2] = useState(false)
+  const [teamSearch1, setTeamSearch1] = useState("")
+  const [teamSearch2, setTeamSearch2] = useState("")
   
-  const router = useRouter();
-  const { toast } = useToast();
+  const router = useRouter()
+  const { toast } = useToast()
 
   // Filter teams based on search input
   const filteredTeams1 = teams.filter(team => 
     team.name.toLowerCase().includes(teamSearch1.toLowerCase())
-  );
+  )
   
   const filteredTeams2 = teams.filter(team => 
     team.name.toLowerCase().includes(teamSearch2.toLowerCase())
-  );
+  )
 
   // Fetch channels on component mount
   useEffect(() => {
     const fetchChannels = async () => {
       try {
-        const response = await fetch("/api/channels");
+        const response = await fetch("/api/channels")
         if (response.ok) {
-          const channelsData = await response.json();
-          setChannels(channelsData);
+          const channelsData = await response.json()
+          setChannels(channelsData)
         }
       } catch (error) {
-        console.error("Failed to fetch channels:", error);
+        console.error("Failed to fetch channels:", error)
       }
-    };
+    }
 
-    fetchChannels();
-  }, []);
+    fetchChannels()
+  }, [])
 
   // Fetch match data if editing
   useEffect(() => {
     if (matchId && open) {
       const fetchMatch = async () => {
-        setIsLoadingMatch(true);
+        setIsLoadingMatch(true)
         try {
-          const response = await fetch(`/api/matches/${matchId}`);
+          const response = await fetch(`/api/matches/${matchId}`)
           if (response.ok) {
-            const match = await response.json();
-            setTitle(match.title);
-            setTeam1Id(match.team1Id);
-            setTeam2Id(match.team2Id);
-            setChannelIds(match.channelIds || []);
-            setIsLive(match.isLive);
+            const match = await response.json()
+            setTitle(match.title)
+            setTeam1Id(match.team1Id)
+            setTeam2Id(match.team2Id)
+            setChannelIds(match.channelIds || [])
+            setIsLive(match.isLive)
           }
         } catch (error) {
           toast({
             title: "Error",
             description: "Failed to load match data",
             variant: "destructive",
-          });
+          })
         } finally {
-          setIsLoadingMatch(false);
+          setIsLoadingMatch(false)
         }
-      };
+      }
 
-      fetchMatch();
+      fetchMatch()
     }
-  }, [matchId, open, toast]);
+  }, [matchId, open, toast])
 
   // Listen for channel updates
   useEffect(() => {
@@ -138,45 +138,45 @@ export default function MatchDialog({
       if (event.detail.type === "channel") {
         const fetchChannels = async () => {
           try {
-            const response = await fetch("/api/channels");
+            const response = await fetch("/api/channels")
             if (response.ok) {
-              const channelsData = await response.json();
-              setChannels(channelsData);
+              const channelsData = await response.json()
+              setChannels(channelsData)
             }
           } catch (error) {
-            console.error("Failed to fetch channels:", error);
+            console.error("Failed to fetch channels:", error)
           }
-        };
-        fetchChannels();
+        }
+        fetchChannels()
       }
-    };
+    }
 
-    window.addEventListener("dataUpdated", handleDataUpdate as EventListener);
+    window.addEventListener("dataUpdated", handleDataUpdate as EventListener)
     return () =>
       window.removeEventListener(
         "dataUpdated",
         handleDataUpdate as EventListener
-      );
-  }, []);
+      )
+  }, [])
 
   const handleChannelToggle = (channelId: string, checked: boolean) => {
     if (checked) {
-      setChannelIds([...channelIds, channelId]);
+      setChannelIds([...channelIds, channelId])
     } else {
-      setChannelIds(channelIds.filter((id) => id !== channelId));
+      setChannelIds(channelIds.filter((id) => id !== channelId))
     }
-  };
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (team1Id === team2Id) {
       toast({
         title: "Error",
         description: "Home and Away teams cannot be the same",
         variant: "destructive",
-      });
-      return;
+      })
+      return
     }
 
     if (channelIds.length === 0) {
@@ -184,11 +184,11 @@ export default function MatchDialog({
         title: "Error",
         description: "Please select at least one channel",
         variant: "destructive",
-      });
-      return;
+      })
+      return
     }
 
-    setIsLoading(true);
+    setIsLoading(true)
 
     try {
       const matchData = {
@@ -197,10 +197,10 @@ export default function MatchDialog({
         team2Id,
         channelIds,
         isLive,
-      };
+      }
 
-      const url = matchId ? `/api/matches/${matchId}` : "/api/matches";
-      const method = matchId ? "PUT" : "POST";
+      const url = matchId ? `/api/matches/${matchId}` : "/api/matches"
+      const method = matchId ? "PUT" : "POST"
 
       const response = await fetch(url, {
         method,
@@ -208,7 +208,7 @@ export default function MatchDialog({
           "Content-Type": "application/json",
         },
         body: JSON.stringify(matchData),
-      });
+      })
 
       if (response.ok) {
         toast({
@@ -216,15 +216,15 @@ export default function MatchDialog({
           description: matchId
             ? "Match has been updated successfully"
             : "New match has been created",
-        });
-        setOpen(false);
-        router.refresh();
+        })
+        setOpen(false)
+        router.refresh()
         window.dispatchEvent(
           new CustomEvent("dataUpdated", { detail: { type: "match" } })
-        );
+        )
       } else {
-        const error = await response.json();
-        throw new Error(error.message || "Something went wrong");
+        const error = await response.json()
+        throw new Error(error.message || "Something went wrong")
       }
     } catch (error) {
       toast({
@@ -232,37 +232,37 @@ export default function MatchDialog({
         description:
           error instanceof Error ? error.message : "Failed to save match",
         variant: "destructive",
-      });
+      })
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const resetForm = () => {
-    setTitle("");
-    setTeam1Id("");
-    setTeam2Id("");
-    setChannelIds([]);
-    setIsLive(false);
-    setTeamSearch1("");
-    setTeamSearch2("");
-  };
+    setTitle("")
+    setTeam1Id("")
+    setTeam2Id("")
+    setChannelIds([])
+    setIsLive(false)
+    setTeamSearch1("")
+    setTeamSearch2("")
+  }
 
   return (
     <Dialog
       open={open}
       onOpenChange={(newOpen) => {
-        setOpen(newOpen);
-        if (!newOpen) resetForm();
+        setOpen(newOpen)
+        if (!newOpen) resetForm()
       }}
     >
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)] overflow-y-auto">
-        <DialogHeader className="space-y-3">
-          <DialogTitle className="text-xl font-semibold text-gray-900">
+      <DialogContent className="sm:max-w-[600px] w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)] overflow-y-auto bg-white text-gray-900">
+        <DialogHeader className="space-y-2 sm:space-y-3">
+          <DialogTitle className="text-lg sm:text-xl font-semibold text-gray-900">
             {matchId ? "Edit Match" : "Add New Match"}
           </DialogTitle>
-          <DialogDescription className="text-gray-600">
+          <DialogDescription className="text-sm sm:text-base text-gray-600">
             {matchId
               ? "Update match details below"
               : "Enter match details below to create a new match"}
@@ -274,12 +274,12 @@ export default function MatchDialog({
             <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+            <div className="space-y-4 sm:space-y-5">
               <div className="space-y-2">
                 <Label
                   htmlFor="title"
-                  className="text-sm font-medium text-gray-700"
+                  className="text-sm sm:text-base font-medium text-gray-700"
                 >
                   Match Title
                 </Label>
@@ -288,15 +288,15 @@ export default function MatchDialog({
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g., Champions League Final"
-                  className="dashboard-input"
+                  className="mt-1"
                   required
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                 {/* Home Team Selector */}
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700">
+                  <Label className="text-sm sm:text-base font-medium text-gray-700">
                     Home Team
                   </Label>
                   <Popover open={openTeam1} onOpenChange={setOpenTeam1}>
@@ -305,7 +305,7 @@ export default function MatchDialog({
                         variant="outline"
                         role="combobox"
                         className={cn(
-                          "dashboard-input justify-between",
+                          "w-full justify-between mt-1",
                           !team1Id && "text-muted-foreground"
                         )}
                       >
@@ -330,9 +330,9 @@ export default function MatchDialog({
                               key={team._id}
                               value={team.name}
                               onSelect={() => {
-                                setTeam1Id(team._id);
-                                setOpenTeam1(false);
-                                setTeamSearch1("");
+                                setTeam1Id(team._id)
+                                setOpenTeam1(false)
+                                setTeamSearch1("")
                               }}
                             >
                               <Check
@@ -354,7 +354,7 @@ export default function MatchDialog({
 
                 {/* Away Team Selector */}
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700">
+                  <Label className="text-sm sm:text-base font-medium text-gray-700">
                     Away Team
                   </Label>
                   <Popover open={openTeam2} onOpenChange={setOpenTeam2}>
@@ -363,7 +363,7 @@ export default function MatchDialog({
                         variant="outline"
                         role="combobox"
                         className={cn(
-                          "dashboard-input justify-between",
+                          "w-full justify-between mt-1",
                           !team2Id && "text-muted-foreground"
                         )}
                       >
@@ -388,9 +388,9 @@ export default function MatchDialog({
                               key={team._id}
                               value={team.name}
                               onSelect={() => {
-                                setTeam2Id(team._id);
-                                setOpenTeam2(false);
-                                setTeamSearch2("");
+                                setTeam2Id(team._id)
+                                setOpenTeam2(false)
+                                setTeamSearch2("")
                               }}
                             >
                               <Check
@@ -411,16 +411,16 @@ export default function MatchDialog({
                 </div>
               </div>
 
-              <div className="space-y-3">
-                <Label className="text-sm font-medium text-gray-700">
+              <div className="space-y-2">
+                <Label className="text-sm sm:text-base font-medium text-gray-700">
                   Select Channels ({channelIds.length} selected)
                 </Label>
                 {channels.length > 0 ? (
-                  <div className="space-y-3 max-h-48 overflow-y-auto border border-gray-200 rounded-lg p-4">
+                  <div className="space-y-2 max-h-48 overflow-y-auto border border-gray-200 rounded-lg p-3">
                     {channels.map((channel) => (
                       <div
                         key={channel._id}
-                        className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg"
+                        className="flex items-start space-x-3 p-2 bg-gray-50 rounded-lg"
                       >
                         <Checkbox
                           id={channel._id}
@@ -432,11 +432,11 @@ export default function MatchDialog({
                         <div className="flex-1 min-w-0">
                           <Label
                             htmlFor={channel._id}
-                            className="font-medium text-gray-900 cursor-pointer"
+                            className="text-sm sm:text-base font-medium text-gray-900 cursor-pointer"
                           >
                             {channel.name}
                           </Label>
-                          <p className="text-sm text-gray-500 font-mono truncate mt-1">
+                          <p className="text-xs sm:text-sm text-gray-500 font-mono truncate mt-1">
                             {channel.m3u8Url}
                           </p>
                           {channel.headers && channel.headers.length > 0 && (
@@ -451,7 +451,7 @@ export default function MatchDialog({
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-lg">
+                  <div className="text-center py-6 text-gray-500 bg-gray-50 rounded-lg">
                     <p className="text-sm">No channels available</p>
                     <p className="text-xs mt-1">
                       Create channels first to assign them to matches
@@ -460,16 +460,16 @@ export default function MatchDialog({
                 )}
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="flex items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-lg border border-gray-200">
                 <div className="space-y-1">
                   <Label
                     htmlFor="isLive"
-                    className="text-sm font-medium text-gray-700 flex items-center gap-2"
+                    className="text-sm sm:text-base font-medium text-gray-700 flex items-center gap-2"
                   >
                     <Radio className="h-4 w-4" />
                     Live Status
                   </Label>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs sm:text-sm text-gray-500">
                     Enable to make this match available for streaming
                   </p>
                 </div>
@@ -482,19 +482,19 @@ export default function MatchDialog({
               </div>
             </div>
 
-            <DialogFooter className="gap-3 sm:gap-2">
+            <DialogFooter className="gap-2 sm:gap-3">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => setOpen(false)}
-                className="dashboard-button-secondary"
+                className="w-full sm:w-auto"
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="dashboard-button-primary"
+                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white"
               >
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {matchId ? "Update Match" : "Create Match"}
@@ -504,5 +504,5 @@ export default function MatchDialog({
         )}
       </DialogContent>
     </Dialog>
-  );
+  )
 }

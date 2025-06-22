@@ -9,6 +9,7 @@ import DeleteMatchDialog from "@/components/delete-match-dialog"
 import ToggleLiveStatus from "@/components/toggle-live-status"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import InstantCampaignButton from "@/components/instant-campaign-button"
 
 interface Team {
   _id: string
@@ -30,6 +31,7 @@ interface Match {
   team2Id: string
   channelIds: string[]
   isLive: boolean
+  notificationsEnabled?: boolean
   createdAt: string
 }
 
@@ -45,14 +47,14 @@ export default function MatchesPageClient() {
       const [matchesRes, teamsRes, channelsRes] = await Promise.all([
         fetch("/api/matches"),
         fetch("/api/teams"),
-        fetch("/api/channels")
+        fetch("/api/channels"),
       ])
 
       if (matchesRes.ok && teamsRes.ok && channelsRes.ok) {
         const [matchesData, teamsData, channelsData] = await Promise.all([
           matchesRes.json(),
           teamsRes.json(),
-          channelsRes.json()
+          channelsRes.json(),
         ])
         setMatches(matchesData)
         setTeams(teamsData)
@@ -69,9 +71,7 @@ export default function MatchesPageClient() {
     fetchAllData()
 
     const handleDataUpdate = (event: CustomEvent) => {
-      if (event.detail.type === "match" || 
-          event.detail.type === "team" || 
-          event.detail.type === "channel") {
+      if (event.detail.type === "match" || event.detail.type === "team" || event.detail.type === "channel") {
         fetchAllData()
       }
     }
@@ -87,7 +87,7 @@ export default function MatchesPageClient() {
       </div>
     )
   }
-  
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -213,25 +213,42 @@ export default function MatchesPageClient() {
                             </td>
                             <td className="py-4 px-6 text-center">
                               <div className="flex flex-col items-center gap-3">
-                                <Badge
-                                  variant={match.isLive ? "default" : "secondary"}
-                                  className={match.isLive ? "bg-red-100 text-red-700 border-red-200" : ""}
-                                >
-                                  {match.isLive ? (
-                                    <>
-                                      <Radio className="h-3 w-3 mr-1 animate-pulse" />
-                                      Live
-                                    </>
-                                  ) : (
-                                    "Offline"
-                                  )}
-                                </Badge>
+                                <div className="flex items-center gap-2">
+                                  <Badge
+                                    variant={match.isLive ? "default" : "secondary"}
+                                    className={match.isLive ? "bg-red-100 text-red-700 border-red-200" : ""}
+                                  >
+                                    {match.isLive ? (
+                                      <>
+                                        <Radio className="h-3 w-3 mr-1 animate-pulse" />
+                                        Live
+                                      </>
+                                    ) : (
+                                      "Offline"
+                                    )}
+                                  </Badge>
+                                  
+                                </div>
                                 <ToggleLiveStatus match={match} />
                               </div>
                             </td>
                             <td className="py-4 px-6">
                               <div className="flex justify-end gap-2">
+                                {match.isLive ? (
+  <InstantCampaignButton 
+    matchId={match._id} 
+    matchTitle={`${team1?.name} vs ${team2?.name}`}
+    isLive={true}
+  />
+) : (
+  <InstantCampaignButton 
+    matchId={match._id} 
+    matchTitle={`${team1?.name} vs ${team2?.name}`}
+    isLive={false}
+  />
+)}
                                 <MatchDialog matchId={match._id} teams={teams}>
+                                  
                                   <Button
                                     size="sm"
                                     variant="outline"
@@ -261,114 +278,121 @@ export default function MatchesPageClient() {
             </Card>
           </div>
 
-          // Update the mobile cards section
-<div className="lg:hidden space-y-4">
-  {matches.map((match) => {
-    const team1 = teams.find((t) => t._id === match.team1Id)
-    const team2 = teams.find((t) => t._id === match.team2Id)
-    const matchChannels = channels.filter((c) => match.channelIds?.includes(c._id))
+          {/* Mobile Cards */}
+          <div className="lg:hidden space-y-4">
+            {matches.map((match) => {
+              const team1 = teams.find((t) => t._id === match.team1Id)
+              const team2 = teams.find((t) => t._id === match.team2Id)
+              const matchChannels = channels.filter((c) => match.channelIds?.includes(c._id))
 
-    return (
-      <Card key={match._id} className="p-4">
-        <div className="flex items-start justify-between mb-3">
-          <div className="space-y-1">
-            <h3 className="font-semibold text-gray-900 text-lg">{match.title}</h3>
-            <p className="text-sm text-gray-500">
-              {new Date(match.createdAt).toLocaleDateString()}
-            </p>
-          </div>
-          <Badge
-            variant={match.isLive ? "default" : "secondary"}
-            className={match.isLive ? "bg-red-100 text-red-700 border-red-200" : ""}
-          >
-            {match.isLive ? (
-              <>
-                <Radio className="h-3 w-3 mr-1 animate-pulse" />
-                Live
-              </>
-            ) : (
-              "Offline"
-            )}
-          </Badge>
-        </div>
+              return (
+                <Card key={match._id} className="p-4">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="space-y-1">
+                      <h3 className="font-semibold text-gray-900 text-lg">{match.title}</h3>
+                      <p className="text-sm text-gray-500">{new Date(match.createdAt).toLocaleDateString()}</p>
+                    </div>
+                    <div className="flex flex-col items-end gap-2">
+                      <Badge
+                        variant={match.isLive ? "default" : "secondary"}
+                        className={match.isLive ? "bg-red-100 text-red-700 border-red-200" : ""}
+                      >
+                        {match.isLive ? (
+                          <>
+                            <Radio className="h-3 w-3 mr-1 animate-pulse" />
+                            Live
+                          </>
+                        ) : (
+                          "Offline"
+                        )}
+                      </Badge>
+                      {(
+                        <div className="flex gap-1">
+                          {match.isLive ? (
+  <InstantCampaignButton 
+    matchId={match._id} 
+    matchTitle={`${team1?.name} vs ${team2?.name}`}
+    isLive={true}
+  />
+) : (
+  <InstantCampaignButton 
+    matchId={match._id} 
+    matchTitle={`${team1?.name} vs ${team2?.name}`}
+    isLive={false}
+  />
+)}
+                        </div>
+                      )}
+                    </div>
+                  </div>
 
-        <div className="flex flex-col gap-3 mb-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              {team1?.crestUrl && (
-                <div className="relative h-8 w-8 rounded-lg overflow-hidden border border-gray-200">
-                  <Image
-                    src={team1.crestUrl || "/placeholder.svg"}
-                    alt={team1.name}
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-              )}
-              <span className="font-medium text-gray-700">{team1?.name || "Unknown"}</span>
-            </div>
-            <span className="text-gray-400 font-medium">vs</span>
-            <div className="flex items-center gap-2">
-              {team2?.crestUrl && (
-                <div className="relative h-8 w-8 rounded-lg overflow-hidden border border-gray-200">
-                  <Image
-                    src={team2.crestUrl || "/placeholder.svg"}
-                    alt={team2.name}
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-              )}
-              <span className="font-medium text-gray-700">{team2?.name || "Unknown"}</span>
-            </div>
-          </div>
-        </div>
+                  <div className="flex flex-col gap-3 mb-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        {team1?.crestUrl && (
+                          <div className="relative h-8 w-8 rounded-lg overflow-hidden border border-gray-200">
+                            <Image
+                              src={team1.crestUrl || "/placeholder.svg"}
+                              alt={team1.name}
+                              fill
+                              className="object-contain"
+                            />
+                          </div>
+                        )}
+                        <span className="font-medium text-gray-700">{team1?.name || "Unknown"}</span>
+                      </div>
+                      <span className="text-gray-400 font-medium">vs</span>
+                      <div className="flex items-center gap-2">
+                        {team2?.crestUrl && (
+                          <div className="relative h-8 w-8 rounded-lg overflow-hidden border border-gray-200">
+                            <Image
+                              src={team2.crestUrl || "/placeholder.svg"}
+                              alt={team2.name}
+                              fill
+                              className="object-contain"
+                            />
+                          </div>
+                        )}
+                        <span className="font-medium text-gray-700">{team2?.name || "Unknown"}</span>
+                      </div>
+                    </div>
+                  </div>
 
-        {matchChannels.length > 0 && (
-          <div className="mb-4">
-            <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-              Channels
-            </label>
-            <div className="flex flex-wrap gap-1 mt-1">
-              {matchChannels.map((channel) => (
-                <Badge key={channel._id} variant="secondary" className="text-xs">
-                  {channel.name}
-                </Badge>
-              ))}
-            </div>
-          </div>
-        )}
+                  {matchChannels.length > 0 && (
+                    <div className="mb-4">
+                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Channels</label>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {matchChannels.map((channel) => (
+                          <Badge key={channel._id} variant="secondary" className="text-xs">
+                            {channel.name}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
-        <div className="flex items-center justify-between">
-          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide m-0">
-            Live/Offline
-          </label>
-          <ToggleLiveStatus match={match} />
-          <div className="flex gap-2">
-            <MatchDialog matchId={match._id} teams={teams}>
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-9 w-9 p-0"
-              >
-                <Pencil className="h-4 w-4" />
-              </Button>
-            </MatchDialog>
-            <DeleteMatchDialog matchId={match._id} matchTitle={match.title}>
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-9 w-9 p-0"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </DeleteMatchDialog>
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-medium text-gray-500 uppercase tracking-wide m-0">
+                      Live/Offline
+                    </label>
+                    <ToggleLiveStatus match={match} />
+                    <div className="flex gap-2">
+                      <MatchDialog matchId={match._id} teams={teams}>
+                        <Button size="sm" variant="outline" className="h-9 w-9 p-0">
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      </MatchDialog>
+                      <DeleteMatchDialog matchId={match._id} matchTitle={match.title}>
+                        <Button size="sm" variant="outline" className="h-9 w-9 p-0">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </DeleteMatchDialog>
+                    </div>
+                  </div>
+                </Card>
+              )
+            })}
           </div>
-        </div>
-      </Card>
-    )
-  })}
-</div>
         </>
       )}
     </div>

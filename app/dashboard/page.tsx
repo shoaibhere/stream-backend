@@ -12,7 +12,7 @@ import MyAdsButton from "@/components/my-ads-button";
 import MyTeamsButton from "@/components/my-teams-button";
 import DynamicStats from "@/components/dynamic-stats";
 import FetchTeamsButton from "@/components/fetch-teams-button";
-
+import MyNotificationCampaignsButton from "@/components/my-notification-campaigns-button";
 export default async function Dashboard() {
   return (
     <DashboardLayout>
@@ -36,11 +36,12 @@ export default async function Dashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid gap-4 sm:grid-cols-5">
+              <div className="grid gap-4 sm:grid-cols-6">
                 <MyTeamsButton className="w-full h-16 text-sm font-medium" />
                 <MyChannelsButton className="w-full h-16 text-sm font-medium" />
                 <MyMatchesButton className="w-full h-16 text-sm font-medium" />
                 <MyAdsButton className="w-full h-16 text-sm font-medium" />
+                <MyNotificationCampaignsButton className="w-full h-16 text-sm font-medium" />
                 <MyWebsiteButton className="w-full h-16 text-sm font-medium" />
               </div>
 

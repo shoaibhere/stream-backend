@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getTeamsCount, getMatchesCount, getLiveMatches, getChannelsCount, getAdsCount } from '@/lib/data';
+import { getTeamsCount, getMatchesCount, getLiveMatches, getChannelsCount, getAdsCount,getNotificationCampaigns } from '@/lib/data';
 
 export async function GET() {
   try {
@@ -8,13 +8,15 @@ export async function GET() {
       matchesCount,
       liveMatches,
       channelsCount,
-      adsCount
+      adsCount,
+      campaigns,
     ] = await Promise.all([
       getTeamsCount(),
       getMatchesCount(),
       getLiveMatches(),
       getChannelsCount(),
-      getAdsCount()
+      getAdsCount(),
+      getNotificationCampaigns(),
     ]);
 
     return NextResponse.json({
@@ -23,6 +25,7 @@ export async function GET() {
       liveMatchesCount: liveMatches.length,
       channelsCount,
       adsCount,
+      campaignCount: campaigns.length,
       updatedAt: new Date().toISOString()
     });
   } catch (error) {
