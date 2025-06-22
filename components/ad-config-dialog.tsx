@@ -62,7 +62,6 @@ const AD_POSITIONS = [
   { value: "top", label: "Top" },
   { value: "bottom", label: "Bottom" },
   { value: "middle", label: "Middle" },
-  { value: "overlay", label: "Overlay" },
 ]
 
 export default function AdConfigDialog({ children, adConfigId }: ScreenAdConfigDialogProps) {
