@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -28,6 +27,7 @@ interface TeamDialogProps {
 export default function TeamDialog({ children, teamId }: TeamDialogProps) {
   const [open, setOpen] = useState(false)
   const [name, setName] = useState("")
+  const [nameError, setNameError] = useState<string | null>(null) // NEW: Error state
   const [crestFile, setCrestFile] = useState<File | null>(null)
   const [crestPreview, setCrestPreview] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -84,10 +84,11 @@ export default function TeamDialog({ children, teamId }: TeamDialogProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    setNameError(null) // Reset error before submission
 
     try {
       const formData = new FormData()
-      formData.append("name", name)
+      formData.append("name", name.trim())
       if (crestFile) {
         formData.append("crest", crestFile)
       }
@@ -103,15 +104,23 @@ export default function TeamDialog({ children, teamId }: TeamDialogProps) {
       if (response.ok) {
         toast({
           title: teamId ? "Team updated" : "Team created",
-          description: teamId ? "Team has been updated successfully" : "New team has been created",
+          description: teamId 
+            ? "Team has been updated successfully" 
+            : "New team has been created",
         })
         setOpen(false)
         router.refresh()
         // Trigger a custom event to refresh data across components
         window.dispatchEvent(new CustomEvent('dataUpdated', { detail: { type: 'team' } }))
       } else {
-        const error = await response.json()
-        throw new Error(error.message || "Something went wrong")
+        const errorData = await response.json()
+        
+        // NEW: Handle duplicate name error specifically
+        if (errorData.message && errorData.message.includes('already exists')) {
+          setNameError(errorData.message)
+        } else {
+          throw new Error(errorData.message || "Something went wrong")
+        }
       }
     } catch (error) {
       toast({
@@ -126,8 +135,15 @@ export default function TeamDialog({ children, teamId }: TeamDialogProps) {
 
   const resetForm = () => {
     setName("")
+    setNameError(null) // NEW: Clear error on close
     setCrestFile(null)
     setCrestPreview(null)
+  }
+
+  // NEW: Clear error when name changes
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setName(e.target.value)
+    if (nameError) setNameError(null)
   }
 
   return (
@@ -163,11 +179,23 @@ export default function TeamDialog({ children, teamId }: TeamDialogProps) {
                 <Input
                   id="name"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={handleNameChange} // Updated handler
                   placeholder="Enter team name"
-                  className="h-11 rounded-lg border-slate-200 focus:border-blue-500 focus:ring-blue-500"
+                  className={`h-11 rounded-lg focus:ring-blue-500 ${
+                    nameError 
+                      ? "border-red-500 focus:border-red-500" 
+                      : "border-slate-200 focus:border-blue-500"
+                  }`}
                   required
                 />
+                
+                {/* NEW: Error message display */}
+                {nameError && (
+                  <p className="text-red-500 text-sm font-medium mt-1 flex items-start">
+                    <X className="h-4 w-4 mr-1.5 mt-0.5 flex-shrink-0" />
+                    <span>{nameError}</span>
+                  </p>
+                )}
               </div>
 
               <div className="space-y-3">
@@ -214,10 +242,20 @@ export default function TeamDialog({ children, teamId }: TeamDialogProps) {
             </div>
 
             <DialogFooter className="gap-3 sm:gap-2">
-              <Button type="button" variant="outline" onClick={() => setOpen(false)} className="admin-button-secondary">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => setOpen(false)}
+                disabled={isLoading}
+                className="admin-button-secondary text-white"
+              >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isLoading} className="admin-button-primary">
+              <Button 
+                type="submit" 
+                disabled={isLoading} 
+                className="admin-button-primary"
+              >
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {teamId ? "Update Team" : "Create Team"}
               </Button>

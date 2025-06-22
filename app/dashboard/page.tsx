@@ -11,6 +11,7 @@ import MyMatchesButton from "@/components/my-matches-button";
 import MyAdsButton from "@/components/my-ads-button";
 import MyTeamsButton from "@/components/my-teams-button";
 import DynamicStats from "@/components/dynamic-stats";
+import FetchTeamsButton from "@/components/fetch-teams-button";
 
 export default async function Dashboard() {
   return (
@@ -46,12 +47,13 @@ export default async function Dashboard() {
               <CardTitle className="text-xl font-semibold text-gray-900">
                 Fetch Data From API
               </CardTitle>
-              <div className="grid gap-4 sm:grid-cols-5">
+              <div className="grid gap-4 sm:grid-cols-6">
                 <FetchMatchesButton className="w-full h-16 text-sm font-medium" />
                 <FetchCompetitionsButton className="w-full h-16 text-sm font-medium" />
                 <FetchStandingsButton className="w-full h-16 text-sm font-medium" />
                 <FetchScorersButton className="w-full h-16 text-sm font-medium" />
                 <FetchArticlesButton className="w-full h-16 text-sm font-medium" />
+                <FetchTeamsButton className="w-full h-16 text-sm font-medium"/>
               </div>
             </CardContent>
           </Card>

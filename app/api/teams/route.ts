@@ -1,7 +1,10 @@
 import { type NextRequest, NextResponse } from "next/server"
 import clientPromise from "@/lib/mongodb"
+import { MongoServerError } from "mongodb"
 import cloudinary from "@/lib/cloudinary"
-
+function escapeRegExp(string: string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
 export async function GET() {
   try {
     const client = await clientPromise
@@ -30,10 +33,19 @@ export async function POST(request: NextRequest) {
     const db = client.db()
 
     // Check if team with same name already exists
-    const existingTeam = await db.collection("teams").findOne({ name })
+    const existingTeam = await db.collection("teams").findOne({
+      name: { 
+        $regex: new RegExp(`^${escapeRegExp(name)}$`, "i") 
+      }
+    })
+
     if (existingTeam) {
-      return NextResponse.json({ message: "A team with this name already exists" }, { status: 400 })
+      return NextResponse.json(
+        { message: "A team with this name already exists" },
+        { status: 400 }
+      )
     }
+
 
     let crestUrl = null
 
@@ -68,8 +80,21 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json({ message: "Team created successfully", id: result.insertedId }, { status: 201 })
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error creating team:", error)
-    return NextResponse.json({ message: "Failed to create team" }, { status: 500 })
+    
+    // Handle MongoDB duplicate key error
+    if (error instanceof MongoServerError && error.code === 11000) {
+      return NextResponse.json(
+        { message: "A team with this name already exists" },
+        { status: 400 }
+      )
+    }
+    
+    return NextResponse.json(
+      { message: "Failed to create team" },
+      { status: 500 }
+    )
   }
 }
+
