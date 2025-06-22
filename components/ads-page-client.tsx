@@ -130,8 +130,8 @@ export default function AdsPageClient() {
       </div>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full bg-white">
+        <TabsList className="grid w-full grid-cols-3 text-black bg-gray-300">
           <TabsTrigger value="all">All ({adConfigs.length})</TabsTrigger>
           <TabsTrigger value="enabled">Enabled ({adConfigs.filter((c) => c.adsEnabled).length})</TabsTrigger>
           <TabsTrigger value="disabled">Disabled ({adConfigs.filter((c) => !c.adsEnabled).length})</TabsTrigger>
